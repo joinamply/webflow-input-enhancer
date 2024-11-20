@@ -1,1 +1,14 @@
-
+{
+    "manifest_version": 3,
+    "name": "Webflow Style Enhancer",
+    "version": "1.0",
+    "description": "Enhance the Webflow interface by formatting style attributes for better readability.",
+    "permissions": ["scripting"],
+    "host_permissions": ["*://*.webflow.io/*", "*://webflow.com/*"],
+    "content_scripts": [
+      {
+        "matches": ["*://*.webflow.io/*", "*://webflow.com/*"],
+        "js": ["content-script.js"]
+      }
+    ]
+  }
