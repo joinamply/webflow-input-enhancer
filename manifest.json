@@ -1,14 +1,30 @@
 {
-    "manifest_version": 3,
-    "name": "Webflow Style Enhancer",
-    "version": "1.0",
-    "description": "Enhance the Webflow interface by formatting style attributes for better readability.",
-    "permissions": ["scripting"],
-    "host_permissions": ["*://*.webflow.io/*", "*://webflow.com/*"],
-    "content_scripts": [
-      {
-        "matches": ["*://*.webflow.io/*", "*://webflow.com/*"],
-        "js": ["content-script.js"]
-      }
-    ]
-  }
+  "manifest_version": 3,
+  "name": "Webflow Input Enhancer",
+  "version": "0.1",
+  "icons": {
+    "16": "logo.png",
+    "32": "logo.png",
+    "48": "logo.png",
+    "128": "logo.png"
+  },
+  "description": "Improve the visualization of the style values inside the input field.",
+  "permissions": [
+    "scripting",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "*://*.design.webflow.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.design.webflow.com/*"
+      ],
+      "js": [
+        "content-script.js"
+      ],
+      "run_at": "document_start"
+    }
+  ]
+}
