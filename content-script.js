@@ -9,12 +9,12 @@ const changeValue = (el, value) => {
                 target: { value },
                 currentTarget: { value },
             });
-            console.log("React state updated:", value);
+            // console.log("React state updated:", value);
         } else {
             console.error("React onChange not found in fiber.");
         }
     } else {
-        console.warn("React fiber not found. Falling back to native events.");
+        // console.warn("React fiber not found. Falling back to native events.");
         simulateNativeInput(el, value);
     }
 };
@@ -24,7 +24,7 @@ const simulateNativeInput = (el, value) => {
     el.value = value;
     el.dispatchEvent(new Event("input", { bubbles: true }));
     el.dispatchEvent(new Event("change", { bubbles: true }));
-    console.log("Simulated input and change events:", value);
+    // console.log("Simulated input and change events:", value);
 };
 
 // Adjust the height of the textarea dynamically
@@ -38,10 +38,10 @@ const restoreInput = (textarea, input, updatedStyle) => {
     const tryRestore = () => {
         if (textarea.parentNode) {
             textarea.parentNode.replaceChild(input, textarea);
-            console.log("Input successfully restored.");
+            // console.log("Input successfully restored.");
             changeValue(input, updatedStyle); // Use React or fallback to native
         } else {
-            console.warn("Textarea parentNode is null. Retrying...");
+            // console.warn("Textarea parentNode is null. Retrying...");
             setTimeout(tryRestore, 100);
         }
     };
@@ -85,7 +85,7 @@ const replaceInputWithTextarea = (input) => {
                 restoreInput(textarea, input, updatedStyle);
             });
         } else {
-            console.error("Input parentNode is null. Skipping replacement.");
+            // console.error("Input parentNode is null. Skipping replacement.");
         }
     }
 };
@@ -110,21 +110,21 @@ const enhanceInputsWithTextarea = () => {
 const waitForRightSidebar = () => {
     const sidebar = document.getElementById("right-sidebar");
     if (sidebar) {
-        console.log("Right-sidebar detected. Enhancing inputs...");
+        // console.log("Right-sidebar detected. Enhancing inputs...");
         enhanceInputsWithTextarea();
 
         const observer = new MutationObserver(() => {
-            console.log("Sidebar updated. Re-enhancing inputs...");
+            // console.log("Sidebar updated. Re-enhancing inputs...");
             enhanceInputsWithTextarea();
         });
 
         observer.observe(sidebar, { childList: true, subtree: true });
     } else {
-        console.log("Waiting for #right-sidebar...");
+        // console.log("Waiting for #right-sidebar...");
         setTimeout(waitForRightSidebar, 100);
     }
 };
 
 // Start the script
-console.log("Extension loaded. Waiting for Webflow...");
+console.log("Webflow Input Enhancer loaded. Waiting for Webflow...");
 waitForRightSidebar();
