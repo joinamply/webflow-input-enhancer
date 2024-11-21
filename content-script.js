@@ -53,7 +53,7 @@ const replaceInputWithTextarea = (input) => {
     const styleValue = input.value;
 
     if (styleValue.includes(":") && styleValue.includes(";")) {
-        console.log("Input detected, replacing with textarea...");
+        // console.log("Input detected, replacing with textarea...");
 
         const formattedStyle = styleValue
             .split(";")
@@ -75,7 +75,7 @@ const replaceInputWithTextarea = (input) => {
             textarea.addEventListener("input", () => autoResizeTextarea(textarea));
 
             textarea.addEventListener("blur", () => {
-                console.log("Textarea blur event, restoring input...");
+                // console.log("Textarea blur event, restoring input...");
                 const updatedStyle = textarea.value
                     .split("\n")
                     .map((line) => line.trim())
@@ -92,7 +92,7 @@ const replaceInputWithTextarea = (input) => {
 
 // Enhance inputs with specific criteria
 const enhanceInputsWithTextarea = () => {
-    console.log("Enhancing inputs...");
+    // console.log("Enhancing inputs...");
     const inputs = document.querySelectorAll('input[data-wf-base-text-input]');
 
     // Filter inputs where data-automation-id contains "Style"
@@ -118,7 +118,7 @@ const waitForRightSidebar = () => {
             enhanceInputsWithTextarea();
         });
 
-        observer.observe(sidebar, { childList: true, subtree: true });
+        observer.observe(sidebar, { attributes: true , childList: true, subtree: true });
     } else {
         // console.log("Waiting for #right-sidebar...");
         setTimeout(waitForRightSidebar, 100);
