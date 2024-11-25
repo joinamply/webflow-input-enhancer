@@ -9,10 +9,7 @@
     "128": "logo.png"
   },
   "description": "Improve the visualization of the style values inside the input field.",
-  "permissions": [
-    "scripting",
-    "activeTab"
-  ],
+  "permissions": "",
   "host_permissions": [
     "*://*.design.webflow.com/*"
   ],
