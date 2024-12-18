@@ -227,6 +227,7 @@ const enhanceInputsWithTextarea = () => {
     const inputs = document.querySelectorAll('input[data-wf-base-text-input]');
     inputs.forEach((input) => {
         const automationId = input.getAttribute("data-automation-id");
+        if (!automationId) return;
         if (automationId.includes("Style")) {
             input.addEventListener("focus", () => enhanceInputWithTextarea(input, "Style"));
         } else if (automationId.includes("Class")) {
@@ -249,6 +250,14 @@ const waitForRightSidebar = () => {
     } else {
         setTimeout(waitForRightSidebar, 100);
     }
+
+    // Reinitialize observer when window regains focus
+    window.addEventListener("focus", () => {
+        if (sidebar) {
+            enhanceInputsWithTextarea();
+            observer.observe(sidebar, { childList: true, subtree: true });
+        }
+    });
 };
 
 // Start the script
