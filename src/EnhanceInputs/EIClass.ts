@@ -2,7 +2,7 @@ import { createEnhanceInput } from "../core/EnhanceInputCore";
 import { createSuggestions } from "../modules/createSuggestions";
 import { onWebflowClassNameChange } from "../modules/getAllWebflowClassName";
 import { autoResizeTextarea } from "../utils/autoResizeTextarea";
-import { iconList } from "../utils/iconList";
+import { iconList } from "../utils/assetList";
 import makeElMutationChangeSafe from "../utils/makeElMutationChangeSafe";
 
 export const EIClassInput = createEnhanceInput({

@@ -27,11 +27,13 @@ export const CONSTANTS = {
     "#designer-app-react-mount",
   WEBFLOW_EDITOR_APP_ROOT_SELECTOR_ALTERNATIVE: "body",
   FIELD_SELECTOR: "input[type='text'][data-automation-id]",
+  TEXTAREA_FIELD_SELECTOR: "textarea[data-automation-id]",
   AUTOMATION_ID_KEY: "data-automation-id",
 };
 
 export const FIELD_CONSTANTS = {
   TEXT_INPUT_PREFIX: "Type--Plugin_Text_",
+  TEXT_INPUT_LIST_PREFIX: "Type--Plugin_List_",
   PARENT_PREFIX: "ExpressionEditor-fieldWrapper-",
   FIELD_LABEL_PREFIX: "Type--Label_",
 };

@@ -56,31 +56,36 @@ export const createEnhanceInput = (data: {
 
   const defaultIconRenderer = (data: mountData) => {
     const { icon } = data.config;
+    const iconElement = data.webflowField.getIconElement();
     if (
-      data.webflowField.iconElement &&
-      data.webflowField.iconElement.parentElement &&
-      data.webflowField.iconElement.parentElement
-        .parentElement
+      iconElement &&
+      iconElement.parentElement &&
+      iconElement.parentElement.parentElement
     ) {
+      makeElMutationChangeSafe(iconElement);
       makeElMutationChangeSafe(
-        data.webflowField.iconElement.parentElement
-          .parentElement.parentElement!
+        iconElement.parentElement.parentElement
+          .parentElement!
       );
+
       makeElMutationChangeSafe(
-        data.webflowField.iconElement.parentElement
-          .parentElement
+        iconElement.parentElement.parentElement
       );
-      tooltip(
-        data.webflowField.iconElement.parentElement
-          .parentElement,
-        {
+      if (
+        !(iconElement.parentElement.parentElement as any)
+          .hasTippy
+      ) {
+        tooltip(iconElement.parentElement.parentElement, {
           content: data.config.tooltip,
           placement: "left",
-        }
-      );
+        });
+        (
+          iconElement.parentElement.parentElement as any
+        ).hasTippy = true;
+      }
     }
-    if (icon && data.webflowField.iconElement) {
-      data.webflowField.iconElement.outerHTML = icon;
+    if (icon && iconElement) {
+      iconElement.outerHTML = icon;
     }
     console.log("iconElement");
   };

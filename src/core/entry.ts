@@ -1,5 +1,5 @@
 import { debug } from "../modules/debug";
-import logoImg from ".././../img/logo.png";
+
 import {
   CONSTANTS,
   FIELD_CONSTANTS,
@@ -7,7 +7,7 @@ import {
 import { initEnhanceInput } from "./initEnhanceInput";
 import makeElMutationChangeSafe from "../utils/makeElMutationChangeSafe";
 import { tooltip } from "../modules/tooltip";
-const logoURL = chrome.runtime.getURL(logoImg);
+import { LogoDataUrl } from "../utils/assetList";
 
 (window as any).isDOMChanging = false;
 
@@ -122,7 +122,7 @@ const injectAppLogo = (parentElement: HTMLElement) => {
 
     //create the logo element
     const logo = document.createElement("img");
-    logo.src = logoURL;
+    logo.src = LogoDataUrl;
     logo.setAttribute(
       "id",
       CONSTANTS.LOGO.ID.replace("#", "")
@@ -189,7 +189,7 @@ const getInputParentElement = (
 };
 
 export type inputTypes = {
-  element: HTMLElement;
+  element: HTMLInputElement;
   automationId: string;
   fieldName: string;
   parentElement: Element;
@@ -198,6 +198,9 @@ export type inputTypes = {
   iconElement: SVGSVGElement;
   value: string;
   defaultDisplay: string;
+  getFieldLabelParent: () => Element | null;
+  getLabelElement: () => ChildNode | null;
+  getIconElement: () => SVGSVGElement | null;
 };
 
 //get all possible inputs on component instance tab
@@ -205,11 +208,14 @@ const getAllPossibleInputs = (
   element: HTMLElement
 ): inputTypes[] => {
   //get all possible inputs
-  const inputs = Array.from(
-    element.querySelectorAll<HTMLElement>(
+  const inputs = Array.from([
+    ...element.querySelectorAll<HTMLElement>(
       CONSTANTS.FIELD_SELECTOR
-    )
-  )
+    ),
+    ...element.querySelectorAll<HTMLElement>(
+      CONSTANTS.TEXTAREA_FIELD_SELECTOR
+    ),
+  ])
     .filter((input) => {
       //get the id
       const id = input.getAttribute(
@@ -220,13 +226,24 @@ const getAllPossibleInputs = (
         debug("🙀 Input Id not found", input);
         return false;
       }
+
       //check if the id includes the text input type
       if (id.includes(FIELD_CONSTANTS.TEXT_INPUT_PREFIX)) {
+        return true;
+      } else if (
+        id.includes(FIELD_CONSTANTS.TEXT_INPUT_LIST_PREFIX)
+      ) {
         return true;
       }
       return false;
     })
     .map((input) => {
+      //get key the to replace string
+      const toReplace = input
+        .getAttribute(CONSTANTS.AUTOMATION_ID_KEY)!
+        .includes(FIELD_CONSTANTS.TEXT_INPUT_LIST_PREFIX)
+        ? FIELD_CONSTANTS.TEXT_INPUT_LIST_PREFIX
+        : FIELD_CONSTANTS.TEXT_INPUT_PREFIX;
       //get the default display
       const defaultDisplay = (
         input.style.display || "block"
@@ -239,10 +256,7 @@ const getAllPossibleInputs = (
       const fieldName =
         input
           .getAttribute(CONSTANTS.AUTOMATION_ID_KEY)
-          ?.replace(
-            FIELD_CONSTANTS.TEXT_INPUT_PREFIX,
-            ""
-          ) || "";
+          ?.replace(toReplace, "") || "";
 
       //get the parent element
       const parentElement = getInputParentElement(
@@ -257,11 +271,20 @@ const getAllPossibleInputs = (
       //make the parent element mutation change safe
       makeElMutationChangeSafe(parentElement!);
       //get the field label parent
-      const fieldLabelParent = parentElement.querySelector(
-        `[data-automation-id='${
-          FIELD_CONSTANTS.FIELD_LABEL_PREFIX
-        }${getSafeSelector(fieldName)}']`
-      );
+      const getFieldLabelParent = () => {
+        const fieldLabelParent =
+          parentElement.querySelector(
+            `[data-automation-id='${
+              FIELD_CONSTANTS.FIELD_LABEL_PREFIX
+            }${getSafeSelector(fieldName)}']`
+          );
+        if (fieldLabelParent) {
+          makeElMutationChangeSafe(fieldLabelParent);
+        }
+        return fieldLabelParent;
+      };
+      const fieldLabelParent = getFieldLabelParent();
+
       //if the field label parent is not found, return null
       if (!fieldLabelParent) {
         debug("🙀 Field label parent not found", input);
@@ -270,14 +293,24 @@ const getAllPossibleInputs = (
       //make the field label parent mutation change safe
       makeElMutationChangeSafe(fieldLabelParent!);
       //get the label element
-      const labelElement = Array.from(
-        fieldLabelParent.childNodes
-      ).filter(
-        (child) =>
-          (child.nodeType === Node.TEXT_NODE &&
-            child.textContent?.trim() === fieldName) ||
-          (child as any).ieText === fieldName
-      )[0];
+      const getLabelElement = () => {
+        const labelElement = Array.from(
+          getFieldLabelParent()!.childNodes
+        ).filter(
+          (child) =>
+            (child.nodeType === Node.TEXT_NODE &&
+              child.textContent?.trim() === fieldName) ||
+            (child as any).ieText === fieldName
+        )[0];
+        if (labelElement) {
+          makeElMutationChangeSafe(
+            labelElement as HTMLElement
+          );
+        }
+        return labelElement;
+      };
+
+      const labelElement = getLabelElement();
 
       //make the label element mutation change safe
       makeElMutationChangeSafe(labelElement as HTMLElement);
@@ -290,8 +323,15 @@ const getAllPossibleInputs = (
 
       (labelElement as any).ieText = fieldName;
 
-      const iconElement =
-        fieldLabelParent.querySelector("svg");
+      const getIconElement = () => {
+        const icon =
+          getFieldLabelParent()!.querySelector("svg");
+        if (icon) {
+          makeElMutationChangeSafe(icon);
+        }
+        return icon;
+      };
+      const iconElement = getIconElement();
 
       //if the icon element is not found, return null
       if (!iconElement) {
@@ -302,7 +342,7 @@ const getAllPossibleInputs = (
       makeElMutationChangeSafe(iconElement!);
 
       return {
-        element: input,
+        element: input as HTMLInputElement,
         automationId: input.getAttribute(
           CONSTANTS.AUTOMATION_ID_KEY
         )!,
@@ -313,6 +353,9 @@ const getAllPossibleInputs = (
         iconElement,
         value: (input as HTMLInputElement).value,
         defaultDisplay,
+        getFieldLabelParent,
+        getLabelElement,
+        getIconElement,
       };
     })
     .filter((input) => input !== null);
@@ -339,7 +382,8 @@ const watchForComponentInstanceTab = (
       );
       if (isIEChange.length > 0) {
         debug(
-          "🫵 IE Change detected, skipping the process..."
+          "🫵 IE Change detected, skipping the process...",
+          mutationList
         );
         return;
       }
