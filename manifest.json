@@ -10,17 +10,11 @@
   },
   "description": "Improve the inline css visualization inside webflow input field.",
   "permissions": [],
-  "host_permissions": [
-    "*://*.design.webflow.com/*"
-  ],
+  "host_permissions": ["*://*.design.webflow.com/*"],
   "content_scripts": [
     {
-      "matches": [
-        "*://*.design.webflow.com/*"
-      ],
-      "js": [
-        "content-script.js"
-      ],
+      "matches": ["*://*.design.webflow.com/*"],
+      "js": ["src/content.ts"],
       "run_at": "document_start"
     }
   ]
