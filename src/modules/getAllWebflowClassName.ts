@@ -1,42 +1,17 @@
 import { debug } from "./debug";
-import { fetchDomData } from "./fetchDomData";
+import {
+  fetchDomData,
+  onDomDataChange,
+} from "./fetchDomData";
 
 let allWebflowClassName: string[] = [];
 let isRunning = false;
 const listenerList = new Set<(classes: string[]) => void>();
-const fetchAllWebflowClassName = () => {
+const fetchAllWebflowClassName = async () => {
   if (isRunning) return;
   isRunning = true;
   try {
-    fetchDomData()
-      .then((dom) => {
-        if ("styles" in dom && "blocks" in dom.styles) {
-          const blocks = dom.styles.blocks;
-          if (Array.isArray(blocks)) {
-            allWebflowClassName = [];
-            blocks.forEach((block) => {
-              if (
-                "data" in block &&
-                "name" in block.data &&
-                "type" in block.data &&
-                block.data.type === "class"
-              ) {
-                allWebflowClassName.push(block.data.name);
-              }
-            });
-          }
-
-          listenerList.forEach((cb) =>
-            cb(allWebflowClassName)
-          );
-        }
-      })
-      .catch((e) => {
-        debug(e);
-      })
-      .finally(() => {
-        isRunning = false;
-      });
+    await fetchDomData();
   } catch (e) {
     debug(e);
   } finally {
@@ -44,9 +19,9 @@ const fetchAllWebflowClassName = () => {
   }
 };
 
-export const initClassNameFetch = () => {
-  fetchAllWebflowClassName();
-  setInterval(fetchAllWebflowClassName, 1000 * 10);
+export const initClassNameFetch = async () => {
+  debug("Fetching all webflow class names 🚀");
+  await fetchAllWebflowClassName();
 };
 
 export const onWebflowClassNameChange = (
@@ -62,3 +37,26 @@ export const onWebflowClassNameChange = (
   }
   return unsubscribe;
 };
+
+onDomDataChange((dom) => {
+  if (!dom) return;
+  if ("styles" in dom && "blocks" in dom.styles) {
+    const blocks = dom.styles.blocks;
+    if (Array.isArray(blocks)) {
+      allWebflowClassName = [];
+      blocks.forEach((block) => {
+        if (
+          "data" in block &&
+          "name" in block.data &&
+          "type" in block.data &&
+          block.data.type === "class"
+        ) {
+          allWebflowClassName.push(block.data.name);
+        }
+      });
+    }
+
+    listenerList.forEach((cb) => cb(allWebflowClassName));
+  }
+});
+initClassNameFetch();

@@ -1,12 +1,12 @@
 import { setDebug } from "./config/config";
 import { initApp } from "./core/entry";
-
-import { initClassNameFetch } from "./modules/getAllWebflowClassName";
-
+import { fetchDomData } from "./modules/fetchDomData";
+import "./modules/getAllWebflowClassName";
+import "./modules/getEIConfig";
 //enable debug mode
 setDebug(true);
 
-//initialize the class name fetch
-initClassNameFetch();
+//fetch the dom data
+fetchDomData();
 //initialize the app
 initApp();

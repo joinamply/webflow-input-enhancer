@@ -8,6 +8,7 @@ import { initEnhanceInput } from "./initEnhanceInput";
 import makeElMutationChangeSafe from "../utils/makeElMutationChangeSafe";
 import { tooltip } from "../modules/tooltip";
 import { LogoDataUrl } from "../utils/assetList";
+import { fetchDomData } from "../modules/fetchDomData";
 
 (window as any).isDOMChanging = false;
 
@@ -201,6 +202,9 @@ export type inputTypes = {
   getFieldLabelParent: () => Element | null;
   getLabelElement: () => ChildNode | null;
   getIconElement: () => SVGSVGElement | null;
+  hasConfigId?: boolean;
+  configId?: string;
+  cleanFieldName?: string;
 };
 
 //get all possible inputs on component instance tab
@@ -259,7 +263,7 @@ const getAllPossibleInputs = (
           ?.replace(toReplace, "") || "";
 
       //get the parent element
-      const parentElement = getInputParentElement(
+      let parentElement = getInputParentElement(
         input,
         fieldName
       );
@@ -272,8 +276,14 @@ const getAllPossibleInputs = (
       makeElMutationChangeSafe(parentElement!);
       //get the field label parent
       const getFieldLabelParent = () => {
+        let _parentElement = getInputParentElement(
+          input,
+          fieldName
+        )!;
+        if (_parentElement)
+          makeElMutationChangeSafe(_parentElement);
         const fieldLabelParent =
-          parentElement.querySelector(
+          _parentElement.querySelector(
             `[data-automation-id='${
               FIELD_CONSTANTS.FIELD_LABEL_PREFIX
             }${getSafeSelector(fieldName)}']`
@@ -307,6 +317,7 @@ const getAllPossibleInputs = (
             labelElement as HTMLElement
           );
         }
+
         return labelElement;
       };
 
@@ -317,7 +328,13 @@ const getAllPossibleInputs = (
 
       //if the label element is not found, return null
       if (!labelElement) {
-        debug("🙀 Label element not found", input);
+        debug(
+          "🙀 Label element not found",
+          input,
+          labelElement,
+          fieldLabelParent,
+          parentElement
+        );
         return null;
       }
 
@@ -382,13 +399,17 @@ const watchForComponentInstanceTab = (
       );
       if (isIEChange.length > 0) {
         debug(
-          "🫵 IE Change detected, skipping the process...",
+          "🫵 EI Change detected, skipping the process...",
           mutationList
         );
         return;
       }
     }
   }
+  debug(
+    "🫵 DOM change detected, reinitializing the process...",
+    mutationList
+  );
   //clear the observer list
   sidebarObserverList.forEach((observer) => {
     observer.disconnect();
@@ -405,6 +426,7 @@ const watchForComponentInstanceTab = (
       );
     //if the component instance tab is found, enhance the inputs
     if (componentInstanceTab) {
+      fetchDomData();
       debug("✅ Component Instance Tab found");
       //inject the app logo
       injectAppLogo(componentInstanceTab);

@@ -5,7 +5,7 @@ import { isValidEmail } from "../utils/isValidEmail";
 export const EIEmailInput = createEnhanceInput({
   config: {
     tooltip: "Enter email",
-    selector: ["[Email]"],
+    selector: ["Email"],
     hideActualInput: false,
     mountInputOn: "mount",
     icon: iconList.email,
@@ -13,21 +13,27 @@ export const EIEmailInput = createEnhanceInput({
   onMount: ({ webflowField, globalCleanUp }) => {
     //get the webflow field
     const { element } = webflowField;
-    if (element.type === "text") element.type = "email";
-    element.setAttribute("type", "email");
+    let field = element;
+    if (element.type === "text") {
+      element.type = "email";
+      field = element;
+      element.setAttribute("type", "email");
+    } else {
+      field = element.parentElement! as HTMLInputElement;
+    }
     const validateOnInput = () => {
       if (element.value.length === 0) return;
-      console.log(element.validity.valid, "valid");
+
       //if the value is not an email add error css
       const isValid = isValidEmail(element.value);
       if (!isValid) {
-        element.style.boxShadow = `var(--box-shadows-input-inner), var(--wf-designer--inputOutlineFocusError)`;
+        field.style.boxShadow = `var(--box-shadows-input-inner), var(--wf-designer--inputOutlineFocusError)`;
       } else {
-        element.style.boxShadow = `var(--box-shadows-input-inner)`;
+        field.style.boxShadow = `var(--box-shadows-input-inner)`;
       }
     };
     const resetOnFocus = () => {
-      element.style.boxShadow = `var(--box-shadows-input-inner)`;
+      field.style.boxShadow = `var(--box-shadows-input-inner)`;
     };
     element.addEventListener("blur", validateOnInput);
     element.addEventListener("focus", resetOnFocus);

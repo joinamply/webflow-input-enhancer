@@ -8,7 +8,7 @@ import makeElMutationChangeSafe from "../utils/makeElMutationChangeSafe";
 export const EIClassInput = createEnhanceInput({
   config: {
     tooltip: "Enter class name",
-    selector: ["[Class]"],
+    selector: ["Class"],
     hideActualInput: true,
     mountInputOn: "focus",
     icon: iconList.cssClass,

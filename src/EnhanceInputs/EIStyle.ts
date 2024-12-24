@@ -11,7 +11,7 @@ import {
 export const EIStyleInput = createEnhanceInput({
   config: {
     tooltip: "Enter inline CSS",
-    selector: ["[Style]"],
+    selector: ["Style"],
     hideActualInput: true,
     mountInputOn: "focus",
     icon: iconList.style,

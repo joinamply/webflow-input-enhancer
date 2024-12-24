@@ -1,8 +1,15 @@
 import { EIClassInput } from "../EnhanceInputs/EIClass";
+import { EIDropdownInput } from "../EnhanceInputs/EIDropdown";
 import { EIEmailInput } from "../EnhanceInputs/EIEmail";
 import { EINumberInput } from "../EnhanceInputs/EINumber";
 import { EIStyleInput } from "../EnhanceInputs/EIStyle";
+
 import { debug } from "../modules/debug";
+import {
+  getEIConfig,
+  EIConfigValue,
+} from "../modules/getEIConfig";
+import { parseFieldName } from "../utils/parseFieldName";
 import { EnhanceInput } from "./EnhanceInputCore";
 import { inputTypes, setIsDOMChanging } from "./entry";
 
@@ -14,6 +21,7 @@ enhanceInputs.push(EIStyleInput);
 enhanceInputs.push(EIClassInput);
 enhanceInputs.push(EINumberInput);
 enhanceInputs.push(EIEmailInput);
+enhanceInputs.push(EIDropdownInput);
 export const initEnhanceInput = (
   allPossibleInputs: inputTypes[]
 ) => {
@@ -26,14 +34,24 @@ export const initEnhanceInput = (
   const globalDestroyList = new Set<() => void>();
 
   allPossibleInputs.forEach((input) => {
+    const parsedFieldName = parseFieldName(input.fieldName);
+    input.cleanFieldName = parsedFieldName.name;
+    if (parsedFieldName.id !== null) {
+      input.hasConfigId = true;
+      input.configId = parsedFieldName.id;
+    }
     //get the eligible inputs
     const eligibleInputs = enhanceInputs.filter(
       (enhanceInput) => {
+        if (!parsedFieldName.type) {
+          return false;
+        }
         const { config } = enhanceInput;
         const selector = config.selector;
 
-        return selector.some((s) =>
-          input.fieldName.includes(s)
+        return (
+          selector.filter((s) => s === parsedFieldName.type)
+            .length > 0
         );
       }
     );
@@ -82,7 +100,21 @@ export const initEnhanceInput = (
         destroy();
         //set the dom changing to true
         setIsDOMChanging(true);
-
+        const globalConfig = getEIConfig();
+        let _configValues: EIConfigValue[] | null = null;
+        if (
+          Object.keys(globalConfig).length &&
+          typeof parsedFieldName.id === "string" &&
+          parsedFieldName.id in globalConfig
+        ) {
+          debug(
+            "🔥 Found global config for",
+            parsedFieldName.id,
+            globalConfig[parsedFieldName.id]
+          );
+          _configValues =
+            globalConfig[parsedFieldName.id].value;
+        }
         //mount the new input
         const mountReturn = finalInput.onMount({
           changeValue,
@@ -90,7 +122,15 @@ export const initEnhanceInput = (
             ...input,
             value: _value,
           },
-          config,
+          config: {
+            ...config,
+            fieldConfig: {
+              id: parsedFieldName.id,
+              configValues: _configValues,
+              inlineConfig: parsedFieldName.inlineConfig,
+            },
+            getGlobalConfig: getEIConfig,
+          },
           globalCleanUp,
         });
         //add the destroy function to the destroy list
@@ -169,12 +209,16 @@ export const initEnhanceInput = (
         ) {
           const changeLabel = () => {
             if (input.getLabelElement()) {
-              input.getLabelElement()!.textContent =
+              const labelElement = input.getLabelElement()!;
+              (labelElement as any).ieText =
+                input.fieldName;
+              labelElement.textContent =
                 finalInput.labelFactory!({
                   changeValue,
                   webflowField: input,
                   config,
                 });
+
               renderIcon();
             }
           };

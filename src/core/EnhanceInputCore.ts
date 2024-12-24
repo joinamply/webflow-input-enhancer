@@ -1,3 +1,7 @@
+import {
+  getEIConfig,
+  EIConfigValue,
+} from "../modules/getEIConfig";
 import { tooltip } from "../modules/tooltip";
 import makeElMutationChangeSafe from "../utils/makeElMutationChangeSafe";
 import { inputTypes } from "./entry";
@@ -12,6 +16,12 @@ export type configType = {
   icon?: string;
   mountInputOn?: mountInputOn;
   hideActualInput?: boolean;
+  fieldConfig?: {
+    id: string | null;
+    configValues: EIConfigValue[] | null;
+    inlineConfig: string[] | null;
+  };
+  getGlobalConfig?: typeof getEIConfig;
 };
 
 //mount data type
@@ -46,11 +56,10 @@ export const createEnhanceInput = (data: {
   iconRenderer?: (data: mountData) => void;
 }) => {
   const defaultLabelFactory = (data: mountData) => {
-    const { selector } = data.config;
-    let text = data.webflowField.fieldName;
-    selector.forEach((s) => {
-      text = text.replace(s, "");
-    });
+    let text =
+      data.webflowField.cleanFieldName ||
+      data.webflowField.fieldName;
+
     return text;
   };
 
@@ -63,6 +72,7 @@ export const createEnhanceInput = (data: {
       iconElement.parentElement.parentElement
     ) {
       makeElMutationChangeSafe(iconElement);
+      makeElMutationChangeSafe(iconElement.parentElement);
       makeElMutationChangeSafe(
         iconElement.parentElement.parentElement
           .parentElement!
@@ -87,7 +97,6 @@ export const createEnhanceInput = (data: {
     if (icon && iconElement) {
       iconElement.outerHTML = icon;
     }
-    console.log("iconElement");
   };
 
   return {
