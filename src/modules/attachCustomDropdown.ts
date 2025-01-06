@@ -280,7 +280,7 @@ function attachCustomDropdown(
       const option = options.find(
         (opt) => opt.value === selectedValue
       );
-      console.log(option, selectedValue);
+
       if (option) {
         inputField.value = option.key;
       }
