@@ -29,6 +29,8 @@ export const CONSTANTS = {
   FIELD_SELECTOR: "input[type='text'][data-automation-id]",
   TEXTAREA_FIELD_SELECTOR: "textarea[data-automation-id]",
   AUTOMATION_ID_KEY: "data-automation-id",
+  PROP_EDITOR_SELECTOR: `[data-automation-id="PropsEditor"]`,
+  PROP_EDITOR_INPUT_SELECTOR: `input[data-automation-id="Type--Plugin_Text_Text"]`,
 };
 
 export const FIELD_CONSTANTS = {
