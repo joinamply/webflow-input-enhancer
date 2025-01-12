@@ -33,11 +33,15 @@ export const EIClassInput = createEnhanceInput({
       return value
         .split(" ")
         .map((v) => v.trim())
+        .filter((v) => v.length)
         .join("\n");
     };
     //get the final value
     const getFinalValue = (value: string) => {
-      return value.split("\n").join(" ");
+      return value
+        .split("\n")
+        .filter((d) => d.length)
+        .join(" ");
     };
     //change value function
     const onChange = () => {
@@ -65,6 +69,18 @@ export const EIClassInput = createEnhanceInput({
         suggestion.updateKeys(allWebflowClassName, {});
       }
     );
+    const onInputElChange = () => {
+      if (
+        element.value !== getFinalValue(textareaEl.value)
+      ) {
+        textareaEl.value = getValue(element.value);
+      }
+    };
+    const observer = new MutationObserver(onInputElChange);
+    observer.observe(element, {
+      childList: true,
+      attributes: true,
+    });
     //destroy function
     const destroy = () => {
       textareaEl.removeEventListener("blur", destroy);
@@ -72,6 +88,7 @@ export const EIClassInput = createEnhanceInput({
       textareaEl.remove();
       suggestion.destroy();
       unsubscribe();
+      observer.disconnect();
       globalCleanUp?.();
     };
 

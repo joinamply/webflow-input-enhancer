@@ -71,6 +71,13 @@ export const createEnhanceInput = (data: {
       iconElement.parentElement &&
       iconElement.parentElement.parentElement
     ) {
+      if (
+        icon &&
+        iconElement &&
+        iconElement.outerHTML === icon
+      ) {
+        return;
+      }
       makeElMutationChangeSafe(iconElement);
       makeElMutationChangeSafe(iconElement.parentElement);
       makeElMutationChangeSafe(

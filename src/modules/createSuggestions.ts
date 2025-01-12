@@ -71,7 +71,7 @@ export const createSuggestions = (
 
     const cursorTop = rect.top + lines.length * lineHeight;
     const cursorLeft =
-      rect.left + lines[lines.length - 1].length * 8; // Approximate character width
+      rect.left + lines[lines.length - 1].length * 3; // Approximate character width
     return { top: cursorTop, left: cursorLeft };
   }
 
@@ -108,7 +108,7 @@ export const createSuggestions = (
 
     // Detect if typing a value after a colon
     const valueMatch = textUpToCursor.match(
-      /([\w-]+):\s*([\w-]*)$/
+      /([\w-]+):\s*([\w-()]*)$/
     );
     if (valueMatch) {
       const property = valueMatch[1];
@@ -116,10 +116,30 @@ export const createSuggestions = (
       const matchingValues = _keyPair[property]?.filter(
         (val) => val.startsWith(valueQuery)
       );
+      let variables: string[] = [];
 
-      if (matchingValues && matchingValues.length > 0) {
+      if (
+        valueQuery.startsWith("var") ||
+        valueQuery.startsWith("--")
+      ) {
+        variables = (_keyPair["--variables"] || []).filter(
+          (val) =>
+            val.startsWith(
+              valueQuery.startsWith("--")
+                ? `var(${valueQuery}`
+                : valueQuery
+            )
+        );
+      }
+
+      const finalSuggestions = [
+        ...variables,
+        ...matchingValues,
+      ];
+
+      if (finalSuggestions && finalSuggestions.length > 0) {
         activeIndex = -1;
-        renderSuggestions(matchingValues);
+        renderSuggestions(finalSuggestions);
         updateDropdownPosition();
         return;
       }
@@ -200,7 +220,7 @@ export const createSuggestions = (
 
         // Handle value insertion
         const valueMatch = textUpToCursor.match(
-          /([\w-]+):\s*([\w-]*)$/
+          /([\w-]+):\s*([\w-()]*)$/
         );
         if (valueMatch) {
           const beforeCursor = textUpToCursor.substring(

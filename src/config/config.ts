@@ -31,6 +31,11 @@ export const CONSTANTS = {
   AUTOMATION_ID_KEY: "data-automation-id",
   PROP_EDITOR_SELECTOR: `[data-automation-id="PropsEditor"]`,
   PROP_EDITOR_INPUT_SELECTOR: `input[data-automation-id="Type--Plugin_Text_Text"]`,
+  safeAttrVals: ["property-list-item-action-wrapper"],
+  PARENT_MATCHING_ELEMENTS_SELECTOR: {
+    parent: `ExpressionEditor-fieldWrapper-`,
+    separator: `expression-editor-override-label-separator`,
+  },
 };
 
 export const FIELD_CONSTANTS = {

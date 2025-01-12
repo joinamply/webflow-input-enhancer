@@ -14,6 +14,8 @@ import {
   setExtendedInputEnabled,
 } from "../utils/extendedInputStore";
 import { simulateNativeInput } from "../utils/simulateNativeInput";
+import { safeMutationRecordCheck } from "../utils/safeMutationRecordCheck";
+import { findAllParentElements } from "../utils/findAllParentElements";
 
 (window as any).isDOMChanging = false;
 
@@ -407,15 +409,15 @@ const watchForComponentInstanceTab = (
     //check if the mutation type is childList
     if (mutationList[0].type === "childList") {
       //check if the mutation target has the ieType property
-      const isIEChange = mutationList.filter(
-        (m) =>
-          "ieType" in m.target && m.target.ieType === true
+      const isIEChange = mutationList.filter((m) =>
+        safeMutationRecordCheck(m)
       );
       if (isIEChange.length > 0) {
-        debug(
-          "🫵 EI Change detected, skipping the process...",
-          mutationList
-        );
+        // debug(
+        //   "🫵 EI Change detected, skipping the process...",
+        //   mutationList,
+        //   mutationList[0]
+        // );
         return;
       }
     }
@@ -444,6 +446,13 @@ const watchForComponentInstanceTab = (
       debug("✅ Component Instance Tab found");
       //inject the app logo
       injectAppLogo(componentInstanceTab);
+      //skip all parent elements from the mutation observer
+      const parentElements = findAllParentElements(
+        componentInstanceTab
+      );
+      parentElements.forEach((parent) => {
+        parent.setAttribute("ei-skip", "true");
+      });
 
       //get all possible inputs
       const allPossibleInputs = getAllPossibleInputs(
@@ -510,17 +519,15 @@ const monitorAlternativeRoot = () => {
     //monitor the sidebar changes
     const observer = new MutationObserver(
       (mutationList) => {
-        const isIEChange = mutationList.filter(
-          (m) =>
-            typeof m === "object" &&
-            "target" in m &&
-            "ieType" in m.target &&
-            m.target.ieType === true
+        const isIEChange = mutationList.filter((m) =>
+          safeMutationRecordCheck(m)
         );
         if (isIEChange.length > 0) {
-          debug(
-            "🫵 EI Change detected, skipping the process..."
-          );
+          // debug(
+          //   "🫵 EI Change detected for alternative root, skipping the process...",
+          //   mutationList,
+          //   mutationList[0]
+          // );
           return;
         } else {
           locatePropCreator();

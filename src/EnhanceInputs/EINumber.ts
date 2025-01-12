@@ -59,6 +59,7 @@ export const EINumberInput = createEnhanceInput({
       }
     }
     if (element.value.length) validate();
+
     //destroy function
     const destroy = () => {
       globalCleanUp?.();

@@ -10,6 +10,8 @@ import {
   EIConfigValue,
 } from "../modules/getEIConfig";
 import { parseFieldName } from "../utils/parseFieldName";
+import { ratedDebounce } from "../utils/ratedDebounce";
+
 import { EnhanceInput } from "./EnhanceInputCore";
 import { inputTypes, setIsDOMChanging } from "./entry";
 
@@ -55,8 +57,11 @@ export const initEnhanceInput = (
         );
       }
     );
+
     //if the eligible inputs are found, mount the input
     if (eligibleInputs.length > 0) {
+      //remove the ei-skip attribute
+      input.parentElement.setAttribute("ei-skip", "false");
       //get the final input
       const finalInput = eligibleInputs[0];
       //get the config
@@ -200,9 +205,16 @@ export const initEnhanceInput = (
 
       const renderDestroyList = new Set<() => void>();
 
+      const finalLabelText = finalInput.labelFactory!({
+        changeValue,
+        webflowField: input,
+        config,
+      });
+
       //render the label
-      const renderLabel = () => {
+      const renderLabel = ratedDebounce(() => {
         renderDestroyList.forEach((destroy) => destroy());
+        renderDestroyList.clear();
         if (
           finalInput.labelFactory &&
           typeof finalInput.labelFactory === "function"
@@ -212,42 +224,32 @@ export const initEnhanceInput = (
               const labelElement = input.getLabelElement()!;
               (labelElement as any).ieText =
                 input.fieldName;
-              labelElement.textContent =
-                finalInput.labelFactory!({
-                  changeValue,
-                  webflowField: input,
-                  config,
-                });
-
-              renderIcon();
+              if (
+                labelElement.textContent !== finalLabelText
+              ) {
+                labelElement.textContent = finalLabelText;
+                renderIcon();
+              }
             }
           };
           changeLabel();
         }
         if (input.getFieldLabelParent()) {
-          const observer = new MutationObserver(
-            (mutationList) => {
-              //check if the dom is changing
-              if ((window as any).isDOMChanging) {
-                return;
-              }
-              if (mutationList && mutationList.length > 0) {
-                //check if the mutation type is childList
-                if (mutationList[0].type === "childList") {
-                  //check if the mutation target has the ieType property
-                  const isIEChange = mutationList.filter(
-                    (m) =>
-                      "ieType" in m.target &&
-                      m.target.ieType === true
-                  );
-                  if (isIEChange.length > 0) {
-                    renderLabel();
-                    return;
-                  }
-                }
-              }
+          const observer = new MutationObserver(() => {
+            //check if the dom is changing
+            if ((window as any).isDOMChanging) {
+              return;
             }
-          );
+
+            const labelElement = input.getLabelElement()!;
+
+            if (
+              labelElement.textContent === finalLabelText
+            ) {
+              return;
+            }
+            renderLabel();
+          });
           observer.observe(
             input.getFieldLabelParent()!.parentElement!,
             {
@@ -259,10 +261,13 @@ export const initEnhanceInput = (
             observer.disconnect();
           });
         }
-      };
+      });
       renderLabel();
 
       setIsDOMChanging(false);
+    } else {
+      //add the ei-skip attribute
+      input.parentElement.setAttribute("ei-skip", "true");
     }
   });
 

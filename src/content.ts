@@ -3,10 +3,10 @@ import { initApp } from "./core/entry";
 import { fetchDomData } from "./modules/fetchDomData";
 import "./modules/getAllWebflowClassName";
 import "./modules/getEIConfig";
+import "./modules/gellAllVariables";
 import { initExtendedInputStore } from "./utils/extendedInputStore";
 //enable debug mode
-setDebug(true);
-
+setDebug(import.meta.env.MODE === "development");
 //fetch the dom data
 fetchDomData();
 //initialize the app

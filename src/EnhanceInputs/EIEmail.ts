@@ -38,6 +38,7 @@ export const EIEmailInput = createEnhanceInput({
     element.addEventListener("blur", validateOnInput);
     element.addEventListener("focus", resetOnFocus);
     if (element.value.length) validateOnInput();
+
     //destroy function
     const destroy = () => {
       globalCleanUp?.();

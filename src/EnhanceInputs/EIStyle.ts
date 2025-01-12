@@ -7,6 +7,7 @@ import {
   styleSuggestionMap,
   styleSuggestionMapKeys,
 } from "../utils/styleSuggestionMap";
+import { onVariablesChange } from "../modules/gellAllVariables";
 
 export const EIStyleInput = createEnhanceInput({
   config: {
@@ -64,12 +65,35 @@ export const EIStyleInput = createEnhanceInput({
         keyPairSeparator: ":",
       }
     );
+
+    const unsubscribe = onVariablesChange((variables) => {
+      suggestion.updateKeys(styleSuggestionMapKeys, {
+        ...styleSuggestionMap,
+        "--variables": variables,
+      });
+    });
+
+    const onInputElChange = () => {
+      if (
+        element.value !== getFinalValue(textareaEl.value)
+      ) {
+        textareaEl.value = getValue(element.value);
+      }
+    };
+
+    const observer = new MutationObserver(onInputElChange);
+    observer.observe(element, {
+      childList: true,
+      attributes: true,
+    });
     //destroy function
     const destroy = () => {
       textareaEl.removeEventListener("blur", destroy);
       textareaEl.removeEventListener("input", onChange);
       textareaEl.remove();
       suggestion.destroy();
+      observer.disconnect();
+      unsubscribe();
       globalCleanUp?.();
     };
 
@@ -91,8 +115,8 @@ export const EIStyleInput = createEnhanceInput({
     textareaEl.addEventListener("input", onChange);
     //auto resize the textarea
     autoResizeTextarea(textareaEl);
-    //return the destroy function
 
+    //return the destroy function
     return {
       destroy,
     };
