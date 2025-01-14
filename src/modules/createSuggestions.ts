@@ -271,7 +271,10 @@ export const createSuggestions = (
         return;
       }
     } else if (event.key === "Escape") {
+      el.focus();
       autocomplete.style.display = "none";
+      event.preventDefault();
+      event.stopPropagation();
     }
   });
 
@@ -286,15 +289,16 @@ export const createSuggestions = (
       );
 
       const valueMatch = textUpToCursor.match(
-        /([\w-]+):\s*([\w-]*)$/
+        /([\w-]+):\s*([\w-()]*)$/
       );
+
       if (valueMatch) {
         const beforeCursor = textUpToCursor.substring(
           0,
           textUpToCursor.length - valueMatch[2].length
         );
         const afterCursor = el.value.substring(cursorPos);
-        el.value = `${beforeCursor}${selectedSuggestion};${afterCursor}`;
+        el.value = `${beforeCursor}${selectedSuggestion} ${afterCursor}`;
         el.focus();
         el.setSelectionRange(
           beforeCursor.length +
@@ -305,6 +309,27 @@ export const createSuggestions = (
             1
         );
         onChange(el.value);
+      } else {
+        // Handle property insertion
+        const keyMatch = textUpToCursor.match(/([\w-]+)$/);
+        if (keyMatch) {
+          const beforeCursor = textUpToCursor.substring(
+            0,
+            textUpToCursor.length - keyMatch[1].length
+          );
+          const afterCursor = el.value.substring(cursorPos);
+          el.value = `${beforeCursor}${selectedSuggestion}${config.keyPairSeparator} ${afterCursor}`;
+          el.focus();
+          el.setSelectionRange(
+            beforeCursor.length +
+              selectedSuggestion.length +
+              2,
+            beforeCursor.length +
+              selectedSuggestion.length +
+              2
+          );
+          onChange(el.value);
+        }
       }
 
       autocomplete.style.display = "none";
@@ -325,6 +350,10 @@ export const createSuggestions = (
   return {
     destroy: () => {
       autocomplete.remove();
+    },
+    autocompleteContainer: autocomplete,
+    isVisible: () => {
+      return autocomplete.style.display !== "none";
     },
     updateKeys: (
       keys: string[],

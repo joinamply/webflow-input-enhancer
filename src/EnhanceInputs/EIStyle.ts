@@ -88,13 +88,20 @@ export const EIStyleInput = createEnhanceInput({
     });
     //destroy function
     const destroy = () => {
-      textareaEl.removeEventListener("blur", destroy);
+      textareaEl.removeEventListener("blur", blurDestroy);
       textareaEl.removeEventListener("input", onChange);
       textareaEl.remove();
       suggestion.destroy();
       observer.disconnect();
       unsubscribe();
       globalCleanUp?.();
+    };
+
+    const blurDestroy = () => {
+      if (suggestion.isVisible()) {
+        return;
+      }
+      destroy();
     };
 
     //set the value of the textarea
@@ -110,7 +117,7 @@ export const EIStyleInput = createEnhanceInput({
     textareaEl.style.resize = "none";
     textareaEl.style.width = "100%";
     //add the event listeners
-    textareaEl.addEventListener("blur", destroy);
+    textareaEl.addEventListener("blur", blurDestroy);
     //add the input event listener
     textareaEl.addEventListener("input", onChange);
     //auto resize the textarea
