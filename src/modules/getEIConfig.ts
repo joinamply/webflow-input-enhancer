@@ -31,7 +31,17 @@ type JSONItem = {
   v?: string;
 };
 
-const CONFIG_NAME = "[EIConfig]";
+export const CONFIG_NAMES = [
+  "[EIConfig]",
+  "[IEConfig]",
+  "IEConfig",
+  "IE_Config",
+  "IE-Config",
+  "IE Config",
+  "IE_Settings",
+  "IE-Settings",
+  "IE Settings",
+];
 
 function generateTree(jsonData: JSONItem[]): any {
   const idMap = new Map<string, JSONItem>();
@@ -61,13 +71,15 @@ function generateTree(jsonData: JSONItem[]): any {
   }
 
   // Find the root item with sym.name = CONFIG_NAME
-  const rootItem = jsonData.find(
-    (item) => item.data?.sym?.name === CONFIG_NAME
+  const rootItem = jsonData.find((item) =>
+    CONFIG_NAMES.includes(item.data?.sym?.name ?? "")
   );
 
   if (!rootItem) {
     debug(
-      `📦 Component config not found with sym.name = ${CONFIG_NAME}`
+      `📦 Component config not found with sym.name = ${CONFIG_NAMES.join(
+        " or "
+      )}`
     );
     return {};
   }
@@ -86,7 +98,11 @@ function extractTextByIeId(
 
     // Check if the node has xattr with name "ei-id"
     const ieIdAttr = node.xattr?.find(
-      (attr: any) => attr.name === "ei-id"
+      (attr: any) =>
+        attr.name === "ei-id" ||
+        attr.name === "ie-id" ||
+        attr.name === "data-ie-id" ||
+        attr.name === "data-ei-id"
     );
 
     if (ieIdAttr) {

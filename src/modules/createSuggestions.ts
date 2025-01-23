@@ -1,25 +1,3 @@
-const suggestionsStyle = document.createElement("style");
-suggestionsStyle.textContent = `
-  .suggestion {
-        padding-top: 4px;
-        padding-bottom: 4px;
-        padding-left: 8px;
-        padding-right: 8px;
-        min-width: 80px;
-        cursor: pointer;
-      }
-
-      .suggestion.active {
-        background-color: rgba(255, 255, 255, 0.07);
-      }
-
-      .suggestion:hover {
-        background-color: rgba(255, 255, 255, 0.03);
-      }
-`;
-suggestionsStyle.id = `suggestions-style`;
-document.head.appendChild(suggestionsStyle);
-
 export const createSuggestions = (
   el: HTMLTextAreaElement | HTMLInputElement,
   keys: string[],

@@ -42,7 +42,21 @@ export const onVariablesChange = (
 };
 
 onDomDataChange((dom) => {
+  let collection: { [key: string]: any } = {};
   if (!dom) return;
+
+  if ("variableCollections" in dom) {
+    const _variableCollections = [
+      ...dom.variableCollections,
+    ];
+    if (Array.isArray(_variableCollections)) {
+      _variableCollections.forEach((col: any) => {
+        if ("id" in col) {
+          collection[col.id] = col;
+        }
+      });
+    }
+  }
   if ("variables" in dom && Array.isArray(dom.variables)) {
     const variables = dom.variables;
 
@@ -52,10 +66,24 @@ onDomDataChange((dom) => {
         const isDeleted =
           "deleted" in variable && variable.deleted;
         if (!isDeleted) {
+          let prefix = "";
+
+          if (
+            "collectionId" in variable &&
+            variable.collectionId in collection
+          ) {
+            const _collection =
+              collection[variable.collectionId];
+            if (!_collection.isDefault) {
+              prefix = `_${sanitizeForVariableName(
+                _collection.name
+              )}`;
+            }
+          }
           allVariables.push(
-            `var(--${sanitizeForVariableName(
-              variable.name
-            )})`
+            `var(--${prefix}${
+              prefix ? "---" : ""
+            }${sanitizeForVariableName(variable.name)})`
           );
         }
       }

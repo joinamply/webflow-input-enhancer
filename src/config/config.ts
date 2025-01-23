@@ -36,6 +36,24 @@ export const CONSTANTS = {
     parent: `ExpressionEditor-fieldWrapper-`,
     separator: `expression-editor-override-label-separator`,
   },
+  componentListSelector: `[data-automation-id="components-list-wrapper"]`,
+  configComponentItemSelectors: [
+    `[data-automation-id="symbol-panel-ie-config"]`,
+    `[data-automation-id="symbol-panel-ieconfig"]`,
+    `[data-automation-id="symbol-panel-ie-settings"]`,
+  ],
+  componentListCountSelectors: [
+    `[data-automation-id="symbol-panel-ie-config-count"]`,
+    `[data-automation-id="symbol-panel-ieconfig-count"]`,
+    `[data-automation-id="symbol-panel-ie-settings-count"]`,
+  ],
+  globalSearchItemSelector: `[data-automation-id="finder-search-result-item"]`,
+  globalSearchItemIconSelector: `[data-wf-icon="ElementComponentIcon"]`,
+  designerModeConfig: {
+    pageModeSelector: `[data-automation-id="top-bar-page-name"]`,
+    componentModeSelector: `[data-automation-id="unfocus-component-button"]`,
+    componentHeaderIconSelector: `[data-wf-icon="ElementComponentIcon"]`,
+  },
 };
 
 export const FIELD_CONSTANTS = {

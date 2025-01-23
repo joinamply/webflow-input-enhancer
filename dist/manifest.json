@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Webflow Input Enhancer",
-  "version": "0.3.4",
+  "version": "0.3.6",
   "icons": {
     "16": "logo.png",
     "32": "logo.png",
@@ -13,29 +13,32 @@
     "storage"
   ],
   "host_permissions": [
-    "*://*.design.webflow.com/*"
+    "*://*.design.webflow.com/*",
+    "*://*.preview.webflow.com/*"
   ],
   "content_scripts": [
     {
       "js": [
-        "assets/content.ts-loader-D-p1RVxm.js"
+        "assets/content.ts-loader-CpFyP8Hp.js"
       ],
       "matches": [
-        "*://*.design.webflow.com/*"
+        "*://*.design.webflow.com/*",
+        "*://*.preview.webflow.com/*"
       ],
       "run_at": "document_start",
       "css": [
-        "assets/content-BHH8rdGj.css"
+        "assets/content-BplJiP4n.css"
       ]
     }
   ],
   "web_accessible_resources": [
     {
       "matches": [
-        "*://*.design.webflow.com/*"
+        "*://*.design.webflow.com/*",
+        "*://*.preview.webflow.com/*"
       ],
       "resources": [
-        "assets/content.ts-cF7UBZKV.js"
+        "assets/content.ts-DoK32rqg.js"
       ],
       "use_dynamic_url": false
     }
