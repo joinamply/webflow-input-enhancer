@@ -8,6 +8,8 @@ import { debug } from "../modules/debug";
 import {
   getEIConfig,
   EIConfigValue,
+  getEIToolTipConfig,
+  getEIDescriptionConfig,
 } from "../modules/getEIConfig";
 import { parseFieldName } from "../utils/parseFieldName";
 import { ratedDebounce } from "../utils/ratedDebounce";
@@ -37,6 +39,7 @@ export const initEnhanceInput = (
 
   allPossibleInputs.forEach((input) => {
     const parsedFieldName = parseFieldName(input.fieldName);
+
     input.cleanFieldName = parsedFieldName.name;
     if (parsedFieldName.id !== null) {
       input.hasConfigId = true;
@@ -66,6 +69,22 @@ export const initEnhanceInput = (
       const finalInput = eligibleInputs[0];
       //get the config
       const config = finalInput.config;
+      if (parsedFieldName.toolTipConfig) {
+        config.customTooltip =
+          getEIToolTipConfig()[
+            parsedFieldName.toolTipConfig
+          ] || config.customTooltip;
+      } else {
+        config.customTooltip = undefined;
+      }
+      if (parsedFieldName.descriptionConfig) {
+        config.description =
+          getEIDescriptionConfig()[
+            parsedFieldName.descriptionConfig
+          ] || config.description;
+      } else {
+        config.description = undefined;
+      }
       //init the value
       let _value = input.value;
       //get the value from the input
@@ -133,6 +152,9 @@ export const initEnhanceInput = (
               id: parsedFieldName.id,
               configValues: _configValues,
               inlineConfig: parsedFieldName.inlineConfig,
+              toolTipConfig: parsedFieldName.toolTipConfig,
+              descriptionConfig:
+                parsedFieldName.descriptionConfig,
             },
             getGlobalConfig: getEIConfig,
           },

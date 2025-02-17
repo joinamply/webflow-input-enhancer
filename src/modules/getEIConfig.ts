@@ -1,15 +1,20 @@
 import { debug } from "./debug";
 import { onDomDataChange } from "./fetchDomData";
 export type EIConfigValue = { key: string; value: string };
+
 const _listeners = new Set<
   (
-    config: Record<string, { value: EIConfigValue[] }>
+    config: Record<string, { value: EIConfigValue[] }>,
+    toolTipConfig: Record<string, string>,
+    descriptionConfig: Record<string, string>
   ) => void
 >();
 let _lastConfig: Record<
   string,
   { value: EIConfigValue[] }
 > = {};
+let _lastToolTipConfig: Record<string, string> = {};
+let _lastDescriptionConfig: Record<string, string> = {};
 type JSONItem = {
   _id: string;
   type: string;
@@ -143,27 +148,136 @@ function extractTextByIeId(
   return result;
 }
 
+function extractTextByIeToolTipId(
+  tree: any
+): Record<string, string> {
+  const result: Record<string, string> = {};
+  function traverse(node: any): void {
+    if (!node) return;
+
+    // Check if the node has xattr with name "ei-id"
+    const ieIdAttr = node.xattr?.find(
+      (attr: any) =>
+        attr.name === "ei-tt" ||
+        attr.name === "ie-tt" ||
+        attr.name === "data-ie-tt" ||
+        attr.name === "data-ei-tt"
+    );
+
+    if (ieIdAttr) {
+      // Collect all text from this node's children
+      const texts: string[] = [];
+
+      function collectText(child: any): void {
+        if (!child) return;
+        if (child.text) {
+          texts.push(child.text);
+        } else if (child.children) {
+          child.children.forEach(collectText);
+        }
+      }
+
+      node.children.forEach(collectText);
+      const finalText = texts.join(" ");
+      result[ieIdAttr.value] = finalText;
+    }
+
+    // Recursively traverse children
+    if (node.children) {
+      node.children.forEach(traverse);
+    }
+  }
+
+  traverse(tree);
+  return result;
+}
+
+function extractTextByIeDescriptionId(
+  tree: any
+): Record<string, string> {
+  const result: Record<string, string> = {};
+  function traverse(node: any): void {
+    if (!node) return;
+
+    // Check if the node has xattr with name "ei-id"
+    const ieIdAttr = node.xattr?.find(
+      (attr: any) =>
+        attr.name === "ei-desc" ||
+        attr.name === "ie-desc" ||
+        attr.name === "data-ie-desc" ||
+        attr.name === "data-ei-desc"
+    );
+
+    if (ieIdAttr) {
+      // Collect all text from this node's children
+      const texts: string[] = [];
+
+      function collectText(child: any): void {
+        if (!child) return;
+        if (child.text) {
+          texts.push(child.text);
+        } else if (child.children) {
+          child.children.forEach(collectText);
+        }
+      }
+
+      node.children.forEach(collectText);
+      const finalText = texts.join(" ");
+      result[ieIdAttr.value] = finalText;
+    }
+
+    // Recursively traverse children
+    if (node.children) {
+      node.children.forEach(traverse);
+    }
+  }
+
+  traverse(tree);
+  return result;
+}
+
 onDomDataChange((dom) => {
   if (!dom) return;
   if ("symbols" in dom) {
     const tree = generateTree(dom.symbols);
     const extractedData = extractTextByIeId(tree);
+    const extractedToolTipData =
+      extractTextByIeToolTipId(tree);
+    const extractedDescriptionData =
+      extractTextByIeDescriptionId(tree);
     debug("📦 EI Config data", extractedData);
+    debug("📦 EI Tooltip data", extractedToolTipData);
+    debug(
+      "📦 EI Description data",
+      extractedDescriptionData
+    );
     _lastConfig = extractedData;
+    _lastToolTipConfig = extractedToolTipData;
+    _lastDescriptionConfig = extractedDescriptionData;
     _listeners.forEach((listener) =>
-      listener(extractedData)
+      listener(
+        extractedData,
+        extractedToolTipData,
+        extractedDescriptionData
+      )
     );
   }
 });
 
 export const onIEConfigChange = (
   callback: (
-    config: Record<string, { value: EIConfigValue[] }>
+    config: Record<string, { value: EIConfigValue[] }>,
+    toolTipConfig: Record<string, string>,
+    descriptionConfig: Record<string, string>
   ) => void
 ) => {
   _listeners.add(callback);
   if (_lastConfig) {
-    callback(_lastConfig);
+    callback(
+      _lastConfig,
+      _lastToolTipConfig,
+      _lastDescriptionConfig
+    );
   }
   return () => {
     _listeners.delete(callback);
@@ -172,4 +286,12 @@ export const onIEConfigChange = (
 
 export const getEIConfig = () => {
   return _lastConfig;
+};
+
+export const getEIToolTipConfig = () => {
+  return _lastToolTipConfig;
+};
+
+export const getEIDescriptionConfig = () => {
+  return _lastDescriptionConfig;
 };

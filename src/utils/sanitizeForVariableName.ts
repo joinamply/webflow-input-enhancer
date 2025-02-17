@@ -75,6 +75,6 @@ function isNonCollapsablePermittedCharacter(
     char === "_";
 
   // Exclude characters that match the `b` regex pattern (assumed globally defined)
-  const regex: RegExp = /some_pattern/; // Replace `some_pattern` with the actual regex for `b`.
+  const regex: RegExp = /\s/;
   return isAllowed && !regex.test(char);
 }

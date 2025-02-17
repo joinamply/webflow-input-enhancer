@@ -21,7 +21,7 @@ export const createSuggestions = (
         border: none;
         max-height: 150px;
         overflow-y: auto;
-        z-index: 1000;
+        z-index: 100000;
         width: auto;
         border-radius: 4px;
     box-shadow: 0px 12px 24px 8px rgba(0, 0, 0, 0.08),0px 8px 16px 4px rgba(0, 0, 0, 0.08),0px 4px 8px 2px rgba(0, 0, 0, 0.08),0px 2px 6px 0px rgba(0, 0, 0, 0.08),0px -0.5px 0.5px 0px rgba(0, 0, 0, 0.12) inset,0px 0.5px 0.5px 0px rgba(255, 255, 255, 0.12) inset;

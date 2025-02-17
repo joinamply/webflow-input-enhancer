@@ -30,6 +30,23 @@ export const CONSTANTS = {
   TEXTAREA_FIELD_SELECTOR: "textarea[data-automation-id]",
   AUTOMATION_ID_KEY: "data-automation-id",
   PROP_EDITOR_SELECTOR: `[data-automation-id="PropsEditor"]`,
+  ATTRIBUTE_CONTAINER_SELECTORS: {
+    normal: `[data-automation-id="ExpressionEditor-fieldWrapper-Custom Attributes"]`,
+    custom: `[data-automation-id="ExpressionEditor-fieldWrapper-Attributes"]`,
+  },
+  ATTRIBUTE_CREATOR_SELECTOR: {
+    parent: `[data-automation-id="ExpressionEditor-fieldWrapper-"]`,
+    name: `[data-automation-id="ExpressionEditor-fieldWrapper-name"]`,
+    nameAlternative: `[data-automation-id="ExpressionEditor-fieldWrapper-Name"]`,
+    nameInput: `[data-automation-id="Type--Plugin_Text"]`,
+    nameInputAlternative: `[data-automation-id="Type--Plugin_Text_Name"]`,
+    nameInnerText: `name`,
+    value: `[data-automation-id="ExpressionEditor-fieldWrapper-value"]`,
+    valueAlternative: `[data-automation-id="ExpressionEditor-fieldWrapper-Value"]`,
+    valueInput: `[data-automation-id="Type--Plugin_Text"]`,
+    valueInputAlternative: `[data-automation-id="Type--Plugin_Text_Value"]`,
+    valueInnerText: `value`,
+  },
   PROP_EDITOR_INPUT_SELECTOR: `input[data-automation-id="Type--Plugin_Text_Text"]`,
   safeAttrVals: ["property-list-item-action-wrapper"],
   PARENT_MATCHING_ELEMENTS_SELECTOR: {

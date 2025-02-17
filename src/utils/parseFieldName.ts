@@ -1,8 +1,15 @@
+import {
+  getEIDescriptionConfig,
+  getEIToolTipConfig,
+} from "../modules/getEIConfig";
+
 interface ParsedResult {
   name: string;
   type: string | null;
   id: string | null;
   inlineConfig: string[] | null;
+  toolTipConfig: string | null;
+  descriptionConfig: string | null;
 }
 export function parseFieldName(input: string) {
   const result: ParsedResult = {
@@ -10,6 +17,8 @@ export function parseFieldName(input: string) {
     type: null,
     id: null,
     inlineConfig: null,
+    toolTipConfig: null,
+    descriptionConfig: null,
   };
 
   // Match the [Type=ID] or [Type] pattern
@@ -30,6 +39,30 @@ export function parseFieldName(input: string) {
     result.inlineConfig = matchConfig[1]
       .split(",")
       .map((item) => item.trim());
+  }
+
+  if (result.inlineConfig) {
+    const allKeys = Object.keys(getEIToolTipConfig() || {});
+    const allDescriptionKeys = Object.keys(
+      getEIDescriptionConfig() || {}
+    );
+    const toolTipConfig = allKeys.find((key) =>
+      result.inlineConfig?.includes(key)
+    );
+    const descriptionConfig = allDescriptionKeys.find(
+      (key) => result.inlineConfig?.includes(key)
+    );
+    if (toolTipConfig) {
+      result.toolTipConfig = toolTipConfig;
+    }
+    if (descriptionConfig) {
+      result.descriptionConfig = descriptionConfig;
+    }
+    result.inlineConfig = result.inlineConfig?.filter(
+      (item) =>
+        !allKeys.includes(item) &&
+        !allDescriptionKeys.includes(item)
+    );
   }
 
   return result;

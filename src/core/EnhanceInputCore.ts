@@ -12,6 +12,8 @@ export type mountInputOn = "focus" | "mount";
 //config type
 export type configType = {
   tooltip: string;
+  customTooltip?: string;
+  description?: string;
   selector: string[];
   icon?: string;
   mountInputOn?: mountInputOn;
@@ -19,7 +21,9 @@ export type configType = {
   fieldConfig?: {
     id: string | null;
     configValues: EIConfigValue[] | null;
+    toolTipConfig: string | null;
     inlineConfig: string[] | null;
+    descriptionConfig: string | null;
   };
   getGlobalConfig?: typeof getEIConfig;
 };
@@ -66,6 +70,15 @@ export const createEnhanceInput = (data: {
   const defaultIconRenderer = (data: mountData) => {
     const { icon } = data.config;
     const iconElement = data.webflowField.getIconElement();
+    if (data.config.description) {
+      const sep =
+        data.webflowField.element.parentElement!
+          .previousElementSibling!;
+      makeElMutationChangeSafe(sep);
+      sep.innerHTML = data.config.description;
+      sep.setAttribute("data-ei-desc", "true");
+    }
+
     if (
       iconElement &&
       iconElement.parentElement &&
@@ -93,7 +106,9 @@ export const createEnhanceInput = (data: {
           .hasTippy
       ) {
         tooltip(iconElement.parentElement.parentElement, {
-          content: data.config.tooltip,
+          content:
+            data.config.customTooltip ||
+            data.config.tooltip,
           placement: "left",
         });
         (

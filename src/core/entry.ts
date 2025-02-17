@@ -21,6 +21,7 @@ import {
 } from "./monitorDesignerMode";
 import { createNotification } from "../utils/createNotification";
 import { addIEFlagToCanvas } from "./addIEFlagToCanvas";
+import { locateAttrContainer } from "./enhanceAttr";
 
 (window as any).isDOMChanging = false;
 
@@ -538,6 +539,7 @@ const monitorAlternativeRoot = () => {
           //locate the config component item
           locateConfigComponentItem();
           locatePropCreator();
+          locateAttrContainer();
         }
       }
     );
@@ -565,6 +567,8 @@ export const initApp = () => {
   //monitor the designer mode
   monitorDesignerMode();
   //listen for the designer mode change
+  //locate the attribute container
+  locateAttrContainer();
   setTimeout(() => {
     onDesignerModeChangeFromTo(
       "inside_config_component",
