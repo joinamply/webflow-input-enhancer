@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Webflow Input Enhancer",
-  "version": "0.3.8",
+  "version": "0.3.9",
   "icons": {
     "16": "logo.png",
     "32": "logo.png",
@@ -19,7 +19,7 @@
   "content_scripts": [
     {
       "js": [
-        "assets/content.ts-loader-Df2grM3m.js"
+        "assets/content.ts-loader-C6Q-luKL.js"
       ],
       "matches": [
         "*://*.design.webflow.com/*",
@@ -38,7 +38,7 @@
         "*://*.preview.webflow.com/*"
       ],
       "resources": [
-        "assets/content.ts-D9x0_LkQ.js"
+        "assets/content.ts-CNF9Mmbq.js"
       ],
       "use_dynamic_url": false
     }

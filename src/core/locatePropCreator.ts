@@ -9,6 +9,8 @@ import { simulateNativeInput } from "../utils/simulateNativeInput";
 //storing the prop creator element in memory
 let _propCreator: HTMLElement | null = null;
 
+let _isPropCreatorOpen = false;
+
 //list of observers will be used to monitor the prop creator changes
 const propCreatorListenerList = new Set<() => void>();
 
@@ -139,6 +141,7 @@ const locatePropCreator = () => {
   const propCreator = document.querySelector(
     CONSTANTS.PROP_EDITOR_SELECTOR
   );
+  _isPropCreatorOpen = propCreator !== null;
   if (propCreator && propCreator !== _propCreator) {
     debug(
       "✅ Prop Creator found, initializing the process..."
@@ -148,4 +151,8 @@ const locatePropCreator = () => {
     //inject the extended input
     injectExtendedInput();
   }
+};
+
+export const isPropCreatorOpen = () => {
+  return _isPropCreatorOpen;
 };

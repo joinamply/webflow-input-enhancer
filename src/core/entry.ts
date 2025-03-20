@@ -529,11 +529,10 @@ const monitorAlternativeRoot = () => {
           safeMutationRecordCheck(m)
         );
         if (isIEChange.length > 0) {
-          // debug(
-          //   "🫵 EI Change detected for alternative root, skipping the process...",
-          //   mutationList,
-          //   mutationList[0]
-          // );
+          debug(
+            "🫵 EI Change detected for alternative root, skipping the process...",
+            [...mutationList]
+          );
           return;
         } else {
           //locate the config component item

@@ -12,6 +12,7 @@ import {
 import makeElMutationChangeSafe from "../utils/makeElMutationChangeSafe";
 import { styleSuggestionMapKeys } from "../utils/styleSuggestionMap";
 import { styleSuggestionMap } from "../utils/styleSuggestionMap";
+import { isPropCreatorOpen } from "./locatePropCreator";
 
 let _toDestroy: (() => void)[] = [];
 let _globalDestroy: (() => void)[] = [];
@@ -231,7 +232,11 @@ const initEnhanceAttrInput = () => {
                   };
 
                   const onChange = (e: any) => {
-                    if (e && "stopPropagation" in e) {
+                    if (
+                      e &&
+                      typeof e !== "string" &&
+                      "stopPropagation" in e
+                    ) {
                       e.stopPropagation();
                     }
                     changeValue(
@@ -261,6 +266,9 @@ const initEnhanceAttrInput = () => {
                     });
 
                   const onInputElChange = () => {
+                    if (isPropCreatorOpen()) {
+                      return;
+                    }
                     if (
                       valueInput.value !==
                       getFinalValue(textareaEl.value)
@@ -384,7 +392,11 @@ const initEnhanceAttrInput = () => {
                   };
 
                   const onChange = (e: any) => {
-                    if (e && "stopPropagation" in e) {
+                    if (
+                      e &&
+                      typeof e !== "string" &&
+                      "stopPropagation" in e
+                    ) {
                       e.stopPropagation();
                     }
 
@@ -418,6 +430,9 @@ const initEnhanceAttrInput = () => {
                   );
 
                   const onInputElChange = () => {
+                    if (isPropCreatorOpen()) {
+                      return;
+                    }
                     if (
                       valueInput.value !==
                       getFinalValue(textareaEl.value)
