@@ -16,7 +16,7 @@ import { ratedDebounce } from "../utils/ratedDebounce";
 
 import { EnhanceInput } from "./EnhanceInputCore";
 import { inputTypes, setIsDOMChanging } from "./entry";
-
+import { EIBlankInput } from "../EnhanceInputs/EIBlank";
 //enhance inputs array
 const enhanceInputs: EnhanceInput[] = [];
 
@@ -26,6 +26,7 @@ enhanceInputs.push(EIClassInput);
 enhanceInputs.push(EINumberInput);
 enhanceInputs.push(EIEmailInput);
 enhanceInputs.push(EIDropdownInput);
+enhanceInputs.push(EIBlankInput);
 export const initEnhanceInput = (
   allPossibleInputs: inputTypes[]
 ) => {

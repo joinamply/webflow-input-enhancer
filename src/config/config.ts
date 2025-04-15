@@ -71,6 +71,13 @@ export const CONSTANTS = {
     componentModeSelector: `[data-automation-id="unfocus-component-button"]`,
     componentHeaderIconSelector: `[data-wf-icon="ElementComponentIcon"]`,
   },
+  TOP_LEVEL: {
+    TOP_LEVEL_GROUP_SELECTOR: `[data-automation-id="ExpressionEditor-fieldWrapper-"]`,
+    FIELD_WRAPPER_SELECTOR: `:scope > div > [data-automation-id]`,
+    SEPARATOR_PREFIX: `expression-editor-separator-record`,
+  },
+  IE_FIELD_KEYWORD: "[IE]",
+  BLANK_IE_FIELD_ID_VALUE: "___IE___",
 };
 
 export const FIELD_CONSTANTS = {
@@ -78,4 +85,5 @@ export const FIELD_CONSTANTS = {
   TEXT_INPUT_LIST_PREFIX: "Type--Plugin_List_",
   PARENT_PREFIX: "ExpressionEditor-fieldWrapper-",
   FIELD_LABEL_PREFIX: "Type--Label_",
+  SEPARATOR_IE_BLANK_PREFIX: `expression-editor-override-label-separator_`,
 };

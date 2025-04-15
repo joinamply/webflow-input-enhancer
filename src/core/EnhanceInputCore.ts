@@ -1,3 +1,5 @@
+import { FIELD_CONSTANTS } from "../config/config";
+import { debug } from "../modules/debug";
 import {
   getEIConfig,
   EIConfigValue,
@@ -68,13 +70,23 @@ export const createEnhanceInput = (data: {
   };
 
   const defaultIconRenderer = (data: mountData) => {
+    const isSpecialIEBlank =
+      data.config.selector.includes("IE");
+
     const { icon } = data.config;
     const iconElement = data.webflowField.getIconElement();
     if (data.config.description) {
-      const sep =
-        data.webflowField.element.parentElement!
-          .previousElementSibling!;
+      const sep = isSpecialIEBlank
+        ? data.webflowField.element.querySelector(
+            `[data-automation-id="${FIELD_CONSTANTS.SEPARATOR_IE_BLANK_PREFIX}${data.webflowField.fieldName}"]`
+          )!
+        : data.webflowField.element.parentElement!
+            .previousElementSibling!;
       makeElMutationChangeSafe(sep);
+      if (!sep) {
+        debug("🙀 [IE] Separator not found", data);
+        return;
+      }
       sep.innerHTML = data.config.description;
       sep.setAttribute("data-ei-desc", "true");
     }
@@ -105,12 +117,16 @@ export const createEnhanceInput = (data: {
         !(iconElement.parentElement.parentElement as any)
           .hasTippy
       ) {
-        tooltip(iconElement.parentElement.parentElement, {
-          content:
-            data.config.customTooltip ||
-            data.config.tooltip,
-          placement: "left",
-        });
+        const text =
+          data.config.customTooltip ||
+          data.config.tooltip ||
+          "";
+        if (text.length) {
+          tooltip(iconElement.parentElement.parentElement, {
+            content: text,
+            placement: "left",
+          });
+        }
         (
           iconElement.parentElement.parentElement as any
         ).hasTippy = true;

@@ -273,10 +273,13 @@ const getAllPossibleInputs = (
       //make the parent element mutation change safe
       makeElMutationChangeSafe(input.parentElement!);
       //get the field name
-      const fieldName =
+      const fieldName = (
         input
           .getAttribute(CONSTANTS.AUTOMATION_ID_KEY)
-          ?.replace(toReplace, "") || "";
+          ?.replace(toReplace, "") || ""
+      )
+        .split("/")
+        .reverse()[0];
 
       //get the parent element
       let parentElement = getInputParentElement(
@@ -298,11 +301,17 @@ const getAllPossibleInputs = (
         )!;
         if (_parentElement)
           makeElMutationChangeSafe(_parentElement);
+        const fallbackSelector = getSafeSelector(fieldName)
+          .split("/")
+          .reverse()[0];
         const fieldLabelParent =
           _parentElement.querySelector(
             `[data-automation-id='${
               FIELD_CONSTANTS.FIELD_LABEL_PREFIX
             }${getSafeSelector(fieldName)}']`
+          ) ||
+          _parentElement.querySelector(
+            `[data-automation-id='${FIELD_CONSTANTS.FIELD_LABEL_PREFIX}${fallbackSelector}']`
           );
         if (fieldLabelParent) {
           makeElMutationChangeSafe(fieldLabelParent);
@@ -313,7 +322,13 @@ const getAllPossibleInputs = (
 
       //if the field label parent is not found, return null
       if (!fieldLabelParent) {
-        debug("🙀 Field label parent not found", input);
+        debug(
+          "🙀 Field label parent not found",
+          input,
+          `[data-automation-id='${
+            FIELD_CONSTANTS.FIELD_LABEL_PREFIX
+          }${getSafeSelector(fieldName)}']`
+        );
         return null;
       }
       //make the field label parent mutation change safe
@@ -322,12 +337,17 @@ const getAllPossibleInputs = (
       const getLabelElement = () => {
         const labelElement = Array.from(
           getFieldLabelParent()!.childNodes
-        ).filter(
-          (child) =>
+        ).filter((child) => {
+          const fieldPrefix = fieldName.split("/")[0];
+
+          return (
             (child.nodeType === Node.TEXT_NODE &&
-              child.textContent?.trim() === fieldName) ||
+              (child.textContent?.trim() === fieldName ||
+                `${fieldPrefix}/${child.textContent?.trim()}` ===
+                  fieldName)) ||
             (child as any).ieText === fieldName
-        )[0];
+          );
+        })[0];
         if (labelElement) {
           makeElMutationChangeSafe(
             labelElement as HTMLElement
@@ -395,6 +415,167 @@ const getAllPossibleInputs = (
   return inputs;
 };
 
+const getAllPossibleEmptyFields = (
+  element: HTMLElement
+): inputTypes[] => {
+  const topLevelGroups = Array.from(
+    element.querySelectorAll(
+      CONSTANTS.TOP_LEVEL.TOP_LEVEL_GROUP_SELECTOR
+    )
+  );
+  const fieldWrappers = topLevelGroups
+    .map((group) => {
+      return Array.from(
+        group.querySelectorAll(
+          CONSTANTS.TOP_LEVEL.FIELD_WRAPPER_SELECTOR
+        )
+      );
+    })
+    .flat()
+    .filter((field) => {
+      const id = field.getAttribute(
+        CONSTANTS.AUTOMATION_ID_KEY
+      );
+      if (id) {
+        return !id.includes(
+          CONSTANTS.TOP_LEVEL.SEPARATOR_PREFIX
+        );
+      }
+      return false;
+    })
+    .filter((field) => {
+      const id = field.getAttribute(
+        CONSTANTS.AUTOMATION_ID_KEY
+      );
+      if (id) {
+        return id.includes(CONSTANTS.IE_FIELD_KEYWORD);
+      }
+      return false;
+    })
+    .map((field) => {
+      makeElMutationChangeSafe(field);
+      const id = field.getAttribute(
+        CONSTANTS.AUTOMATION_ID_KEY
+      )!;
+      const toReplace = FIELD_CONSTANTS.PARENT_PREFIX;
+
+      const fieldName = id.replace(toReplace, "");
+
+      const getInputParentElement = () => {
+        return field;
+      };
+
+      const parentElement = getInputParentElement();
+
+      //get the field label parent
+      const getFieldLabelParent = () => {
+        let _parentElement = getInputParentElement();
+        if (_parentElement)
+          makeElMutationChangeSafe(_parentElement);
+        const fallbackSelector = getSafeSelector(fieldName)
+          .split("/")
+          .reverse()[0];
+        const fieldLabelParent =
+          _parentElement.querySelector(
+            `[data-automation-id='${
+              FIELD_CONSTANTS.FIELD_LABEL_PREFIX
+            }${getSafeSelector(fieldName)}']`
+          ) ||
+          _parentElement.querySelector(
+            `[data-automation-id='${FIELD_CONSTANTS.FIELD_LABEL_PREFIX}${fallbackSelector}']`
+          );
+        if (fieldLabelParent) {
+          makeElMutationChangeSafe(fieldLabelParent);
+        }
+        return fieldLabelParent;
+      };
+      const fieldLabelParent = getFieldLabelParent();
+
+      //if the field label parent is not found, return null
+      if (!fieldLabelParent) {
+        debug(
+          "🙀 [IE] Field label parent not found",
+          field,
+          fieldName,
+          parentElement
+        );
+        return null;
+      }
+      //make the field label parent mutation change safe
+      makeElMutationChangeSafe(fieldLabelParent!);
+
+      const getLabelElement = () => {
+        const labelElement = Array.from(
+          getFieldLabelParent()!.childNodes
+        ).filter((child) => {
+          const fieldPrefix = fieldName.split("/")[0];
+
+          return (
+            (child.nodeType === Node.TEXT_NODE &&
+              (child.textContent?.trim() === fieldName ||
+                `${fieldPrefix}/${child.textContent?.trim()}` ===
+                  fieldName)) ||
+            (child as any).ieText === fieldName
+          );
+        })[0];
+        if (labelElement) {
+          makeElMutationChangeSafe(
+            labelElement as HTMLElement
+          );
+        }
+
+        return labelElement;
+      };
+
+      const labelElement = getLabelElement();
+
+      if (!labelElement) {
+        debug(
+          "🙀 [IE] Label element not found",
+          field,
+          fieldName,
+          parentElement
+        );
+        return null;
+      }
+      makeElMutationChangeSafe(labelElement as HTMLElement);
+      (labelElement as any).ieText = fieldName;
+
+      const getIconElement = () => {
+        const icon =
+          getFieldLabelParent()!.querySelector("svg");
+        if (icon) {
+          makeElMutationChangeSafe(icon);
+        }
+        return icon;
+      };
+      const iconElement = getIconElement();
+      //if the icon element is not found, return null
+      if (!iconElement) {
+        debug("🙀 [IE] Icon element not found", field);
+        return null;
+      }
+      //make the icon element mutation change safe
+      makeElMutationChangeSafe(iconElement!);
+      return {
+        element: field,
+        automationId: id,
+        fieldName,
+        parentElement,
+        fieldLabelParent,
+        labelElement,
+        iconElement,
+        value: CONSTANTS.BLANK_IE_FIELD_ID_VALUE,
+        getFieldLabelParent,
+        getLabelElement,
+        getIconElement,
+      } as inputTypes;
+    })
+    .filter((input) => input !== null);
+
+  return fieldWrappers;
+};
+
 //watch for the component instance tab
 const watchForComponentInstanceTab = (
   mutationList?: MutationRecord[],
@@ -458,10 +639,16 @@ const watchForComponentInstanceTab = (
       const allPossibleInputs = getAllPossibleInputs(
         componentInstanceTab
       );
+      //get all possible empty fields
+      const allPossibleEmptyFields =
+        getAllPossibleEmptyFields(componentInstanceTab);
+      const finalInputs = [
+        ...allPossibleInputs,
+        ...allPossibleEmptyFields,
+      ];
       //initialize the enhance inputs
-      const enhanceInput = initEnhanceInput(
-        allPossibleInputs
-      );
+      const enhanceInput = initEnhanceInput(finalInputs);
+
       enhanceInputs.push(enhanceInput);
     } else {
       debug(
