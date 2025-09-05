@@ -2,13 +2,14 @@ import { createEnhanceInput } from '../core/EnhanceInputCore';
 import { autoResizeTextarea } from '../utils/autoResizeTextarea';
 import { iconList } from '../utils/assetList';
 import makeElMutationChangeSafe from '../utils/makeElMutationChangeSafe';
+import { isValidURL } from '../utils/isValidURL';
 
 export const EIUrlInput = createEnhanceInput({
 	config: {
 		tooltip: 'Enter URL',
 		selector: ['URL'],
 		hideActualInput: true,
-		mountInputOn: 'focus',
+		mountInputOn: 'mount',
 		icon: iconList.url,
 	},
 	onMount: ({ webflowField, changeValue, globalCleanUp }) => {
@@ -36,33 +37,32 @@ export const EIUrlInput = createEnhanceInput({
 		};
 		//append the textarea to the parent element
 		parentEl?.appendChild(textareaEl);
-		//focus the textarea
-		textareaEl.focus();
 		//change value function
 		const onChange = () => {
 			changeValue(getFinalValue(textareaEl.value));
 			//auto resize the textarea
 			autoResizeTextarea(textareaEl);
 			//validate the URL
-			const isValid = validateURL(textareaEl.value);
-			console.log('isValid :', isValid);
-			if (!isValid) {
-				textareaEl.style.boxShadow = `var(--box-shadows-input-inner), var(--wf-designer--inputOutlineFocusError)`;
+			const isValid = isValidURL(textareaEl.value);
+
+			if (!isValid && parentEl) {
+				parentEl.style.boxShadow = `var(--box-shadows-input-inner), var(--wf-designer--inputOutlineFocusError)`;
 				return;
 			} else {
-				//attachOGDetails(element, textareaEl.value);
-				textareaEl.style.boxShadow = `var(--box-shadows-input-inner)`;
+				if (parentEl)
+					parentEl.style.boxShadow = `var(--box-shadows-input-inner),0 0 0 1px var(--colors-blue-border)`;
 			}
 		};
 
-		const validateURL = (url: string) => {
-			try {
-				new URL(url);
-				return true;
-			} catch (e) {
-				return false;
-			}
-		};
+
+		//validate on mount
+		const isInitialValid = isValidURL(value);
+		if (!isInitialValid && parentEl) {
+			parentEl.style.boxShadow = `var(--box-shadows-input-inner), var(--wf-designer--inputOutlineFocusError)`;
+		} else {
+			if (parentEl)
+				parentEl.style.boxShadow = `var(--box-shadows-input-inner),0 0 0 1px var(--colors-blue-border)`;
+		}
 
 		const onInputElChange = () => {
 			if (element.value !== getFinalValue(textareaEl.value)) {
@@ -109,3 +109,5 @@ export const EIUrlInput = createEnhanceInput({
 		};
 	},
 });
+
+
