@@ -1,52 +1,63 @@
-import { createEnhanceInput } from "../core/EnhanceInputCore";
-import { iconList } from "../utils/assetList";
-import { isValidEmail } from "../utils/isValidEmail";
+import { createEnhanceInput } from '../core/EnhanceInputCore'
+import { iconList } from '../utils/assetList'
+import { isValidEmail } from '../utils/isValidEmail'
 
 export const EIEmailInput = createEnhanceInput({
   config: {
-    tooltip: "Enter email",
-    selector: ["Email"],
+    tooltip: 'Enter email',
+    selector: ['Email'],
     hideActualInput: false,
-    mountInputOn: "mount",
+    mountInputOn: 'mount',
     icon: iconList.email,
   },
   onMount: ({ webflowField, globalCleanUp }) => {
     //get the webflow field
-    const { element } = webflowField;
-    let field = element;
-    if (element.type === "text") {
-      element.type = "email";
-      field = element;
-      element.setAttribute("type", "email");
-    } else {
-      field = element.parentElement! as HTMLInputElement;
-    }
-    const validateOnInput = () => {
-      if (element.value.length === 0) return;
+    const { element } = webflowField
+    //get the parent element
+    const parentEl = element.parentElement
+    element.placeholder = 'Enter email'
 
-      //if the value is not an email add error css
-      const isValid = isValidEmail(element.value);
-      if (!isValid) {
-        field.style.boxShadow = `var(--box-shadows-input-inner), var(--wf-designer--inputOutlineFocusError)`;
+    const setValidationBorder = (value: string) => {
+      const isValid = isValidEmail(value)
+      if (!isValid && parentEl) {
+        parentEl.style.boxShadow = `var(--box-shadows-input-inner), var(--wf-designer--inputOutlineFocusError)`
       } else {
-        field.style.boxShadow = `var(--box-shadows-input-inner)`;
+        if (parentEl) parentEl.style.boxShadow = `var(--box-shadows-input-inner),0 0 0 1px var(--colors-blue-border)`
       }
-    };
+    }
+    setValidationBorder(element.value)
+
+    const onChange = () => {
+      setValidationBorder(element.value)
+    }
+
+    const validateOnInput = () => {
+      if (element.value.length === 0) return
+      setValidationBorder(element.value)
+    }
     const resetOnFocus = () => {
-      field.style.boxShadow = `var(--box-shadows-input-inner)`;
-    };
-    element.addEventListener("blur", validateOnInput);
-    element.addEventListener("focus", resetOnFocus);
-    if (element.value.length) validateOnInput();
+      setValidationBorder(element.value)
+    }
+
+    const observer = new MutationObserver(onChange)
+    observer.observe(element, {
+      childList: true,
+      attributes: true,
+    })
+
+    element.addEventListener('blur', validateOnInput)
+    element.addEventListener('focus', resetOnFocus)
+    element.addEventListener('change', onChange)
 
     //destroy function
     const destroy = () => {
-      globalCleanUp?.();
-      element.removeEventListener("blur", validateOnInput);
-      element.removeEventListener("focus", resetOnFocus);
-    };
+      globalCleanUp?.()
+      element.removeEventListener('blur', validateOnInput)
+      element.removeEventListener('focus', resetOnFocus)
+      element.removeEventListener('change', validateOnInput)
+    }
 
     //return the destroy function
-    return { destroy };
+    return { destroy }
   },
-});
+})

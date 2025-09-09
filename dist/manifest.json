@@ -19,7 +19,7 @@
   "content_scripts": [
     {
       "js": [
-        "assets/content.ts-loader-BpphvVlJ.js"
+        "assets/content.ts-loader-C4MIXyrU.js"
       ],
       "matches": [
         "*://*.design.webflow.com/*",
@@ -38,7 +38,7 @@
         "*://*.preview.webflow.com/*"
       ],
       "resources": [
-        "assets/content.ts-BTe8lbEp.js"
+        "assets/content.ts-lV53DmTW.js"
       ],
       "use_dynamic_url": false
     }
