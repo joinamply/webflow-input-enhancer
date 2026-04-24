@@ -3,6 +3,7 @@ import { EIDropdownInput } from "../EnhanceInputs/EIDropdown";
 import { EIEmailInput } from "../EnhanceInputs/EIEmail";
 import { EINumberInput } from "../EnhanceInputs/EINumber";
 import { EIStyleInput } from "../EnhanceInputs/EIStyle";
+import { EIUrlInput } from "../EnhanceInputs/EIUrl";
 
 import { debug } from "../modules/debug";
 import {
@@ -27,6 +28,8 @@ enhanceInputs.push(EINumberInput);
 enhanceInputs.push(EIEmailInput);
 enhanceInputs.push(EIDropdownInput);
 enhanceInputs.push(EIBlankInput);
+enhanceInputs.push(EIUrlInput);
+
 export const initEnhanceInput = (
   allPossibleInputs: inputTypes[]
 ) => {
@@ -73,7 +76,7 @@ export const initEnhanceInput = (
       if (parsedFieldName.toolTipConfig) {
         config.customTooltip =
           getEIToolTipConfig()[
-            parsedFieldName.toolTipConfig
+          parsedFieldName.toolTipConfig
           ] || config.customTooltip;
       } else {
         config.customTooltip = undefined;
@@ -81,7 +84,7 @@ export const initEnhanceInput = (
       if (parsedFieldName.descriptionConfig) {
         config.description =
           getEIDescriptionConfig()[
-            parsedFieldName.descriptionConfig
+          parsedFieldName.descriptionConfig
           ] || config.description;
       } else {
         config.description = undefined;

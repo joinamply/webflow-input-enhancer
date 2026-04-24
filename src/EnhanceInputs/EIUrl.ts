@@ -1,24 +1,24 @@
 import { createEnhanceInput } from '../core/EnhanceInputCore'
 import { iconList } from '../utils/assetList'
-import { isValidEmail } from '../utils/isValidEmail'
+import { isValidURL } from '../utils/isValidURL'
 
-export const EIEmailInput = createEnhanceInput({
+export const EIUrlInput = createEnhanceInput({
   config: {
-    tooltip: 'Enter email',
-    selector: ['Email'],
+    tooltip: 'Enter URL',
+    selector: ['URL'],
     hideActualInput: false,
     mountInputOn: 'mount',
-    icon: iconList.email,
+    icon: iconList.url,
   },
   onMount: ({ webflowField, globalCleanUp }) => {
     //get the webflow field
     const { element } = webflowField
     //get the parent element
     const parentEl = element.parentElement
-    element.placeholder = 'Enter email'
+    element.placeholder = 'Enter URL'
 
     const setValidationBorder = (value: string) => {
-      const isValid = isValidEmail(value)
+      const isValid = isValidURL(value)
       if (!isValid && parentEl) {
         parentEl.style.boxShadow = `var(--box-shadows-input-inner), var(--wf-designer--inputOutlineFocusError)`
       } else {
