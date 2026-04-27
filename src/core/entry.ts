@@ -22,6 +22,8 @@ import {
 import { createNotification } from "../utils/createNotification";
 import { addIEFlagToCanvas } from "./addIEFlagToCanvas";
 import { locateAttrContainer } from "./enhanceAttr";
+import { groupCmsFields } from "../modules/groupCmsFields";
+import { groupCmsCollections } from "../modules/groupCmsCollections";
 
 (window as any).isDOMChanging = false;
 
@@ -726,6 +728,8 @@ const monitorAlternativeRoot = () => {
           locateConfigComponentItem();
           locatePropCreator();
           locateAttrContainer();
+          //group CMS fields by [Group=NAME] help-text marker
+          groupCmsFields();
         }
       }
     );
@@ -755,6 +759,10 @@ export const initApp = () => {
   //listen for the designer mode change
   //locate the attribute container
   locateAttrContainer();
+  //group CMS fields by [Group=NAME] help-text marker
+  groupCmsFields();
+  //group CMS collections by [Group=NAME] in collection name
+  groupCmsCollections();
   setTimeout(() => {
     onDesignerModeChangeFromTo(
       "inside_config_component",
@@ -770,4 +778,9 @@ export const initApp = () => {
       null
     );
   }, 4000);
+  //fallback polling for CMS collection grouping
+  //(catches React re-renders the global observer might miss)
+  setInterval(() => {
+    groupCmsCollections();
+  }, 1000);
 };
