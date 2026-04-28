@@ -13,6 +13,7 @@ const GROUP_HEADING_ATTR = "ei-cms-group-heading";
 const GROUP_BODY_ATTR = "ei-cms-group-body";
 const GROUP_CHEVRON_ATTR = "ei-cms-group-chevron";
 const GROUP_PROCESSED_ATTR = "ei-cms-group-processed";
+const GROUP_COUNT_ATTR = "ei-cms-group-count";
 const COLLAPSE_STORAGE_KEY = "eiCmsGroupCollapsed";
 
 const collapsedGroups = new Set<string>();
@@ -82,6 +83,37 @@ const applyCollapsedState = (
     "ei-cms-group-collapsed",
     collapsed ? "true" : "false"
   );
+};
+
+const isFieldFilled = (field: HTMLElement): boolean => {
+  const inputs = field.querySelectorAll<
+    HTMLInputElement | HTMLTextAreaElement
+  >("input, textarea");
+  for (const input of Array.from(inputs)) {
+    const val = (input.value || "").trim();
+    if (val.length > 0) return true;
+  }
+  return false;
+};
+
+const updateGroupCount = (wrapper: HTMLElement) => {
+  const body = wrapper.querySelector<HTMLElement>(
+    `[${GROUP_BODY_ATTR}]`
+  );
+  if (!body) return;
+  const counter = wrapper.querySelector<HTMLElement>(
+    `[${GROUP_COUNT_ATTR}]`
+  );
+  if (!counter) return;
+  const fields = Array.from(body.children).filter(
+    (child): child is HTMLElement => child instanceof HTMLElement
+  );
+  const total = fields.length;
+  const filled = fields.filter(isFieldFilled).length;
+  const text = `${filled}/${total}`;
+  if (counter.textContent !== text) {
+    counter.textContent = text;
+  }
 };
 
 const findFieldWrapper = (
@@ -168,10 +200,22 @@ const buildGroupWrapper = (
 
   const label = document.createElement("span");
   label.textContent = groupName;
+  label.style.flex = "1";
   makeElMutationChangeSafe(label);
+
+  const counter = document.createElement("span");
+  counter.setAttribute(GROUP_COUNT_ATTR, "true");
+  counter.style.fontSize = "10px";
+  counter.style.fontWeight = "500";
+  counter.style.color = "var(--colors-text-secondary)";
+  counter.style.opacity = "0.75";
+  counter.style.marginLeft = "auto";
+  counter.style.fontVariantNumeric = "tabular-nums";
+  makeElMutationChangeSafe(counter);
 
   heading.appendChild(chevron);
   heading.appendChild(label);
+  heading.appendChild(counter);
   wrapper.appendChild(heading);
 
   const body = document.createElement("div");
@@ -182,6 +226,11 @@ const buildGroupWrapper = (
   body.style.marginTop = "6px";
   makeElMutationChangeSafe(body);
   wrapper.appendChild(body);
+
+  // Live-update the count when any input within this group changes.
+  const onInputChange = () => updateGroupCount(wrapper);
+  body.addEventListener("input", onInputChange);
+  body.addEventListener("change", onInputChange);
 
   heading.addEventListener("click", () => {
     if (collapsedGroups.has(groupName)) {
@@ -198,6 +247,12 @@ const buildGroupWrapper = (
 
 export const groupCmsFields = () => {
   hydrateCollapsedGroups();
+
+  // Refresh counts on any existing group wrappers so the
+  // filled/total ratio stays in sync with field values.
+  document
+    .querySelectorAll<HTMLElement>(`[${GROUP_WRAPPER_ATTR}]`)
+    .forEach((wrapper) => updateGroupCount(wrapper));
 
   // Match hints whose text STARTS with [Group=NAME]. This works
   // for component instance properties AND CMS item edit forms,
@@ -282,6 +337,7 @@ export const groupCmsFields = () => {
     });
 
     applyCollapsedState(wrapper, groupName);
+    updateGroupCount(wrapper);
 
     debug(
       `✅ [CMS Group] Grouped ${entries.length} field(s) under "${groupName}"`
