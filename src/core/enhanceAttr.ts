@@ -102,7 +102,9 @@ const locateAttrContainer = () => {
     //store the prop creator element in memory
     _attrContainer = attrContainer as HTMLElement;
     //inject the extended input
-    injectExtendedInput(_attrContainer);
+    // Disabled: "Expand Attributes List" toggle was breaking the
+    // layout. Re-enable once the styling regression is fixed.
+    // injectExtendedInput(_attrContainer);
   }
   if (
     attrCustomContainer &&
@@ -114,10 +116,16 @@ const locateAttrContainer = () => {
     _attrCustomContainer =
       attrCustomContainer as HTMLElement;
     //inject the extended input
-    injectExtendedInput(_attrCustomContainer);
+    // Disabled: see note above.
+    // injectExtendedInput(_attrCustomContainer);
   }
   initEnhanceAttrInput();
 };
+
+// Keep `injectExtendedInput` referenced so TS doesn't flag it
+// while the toggle is disabled. Re-enable the call sites above
+// once the layout regression is fixed.
+void injectExtendedInput;
 
 const initEnhanceAttrInput = () => {
   _toDestroy.forEach((destroy) => destroy());

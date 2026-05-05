@@ -115,15 +115,15 @@ function attachCustomDropdown(
   clearButtonContainer.appendChild(clearButton);
   const dropdownList = document.createElement("ul");
   makeElMutationChangeSafe(dropdownList);
-  dropdownList.style.position = "absolute";
-  dropdownList.style.top = "calc(100% + 3px)";
-  dropdownList.style.left = "0px";
+  // position: fixed so the list isn't clipped by any ancestor's
+  // overflow (panel content scroll, etc.). Coordinates are
+  // updated relative to dropdownContainer's viewport rect.
+  dropdownList.style.position = "fixed";
   dropdownList.style.borderRadius = "4px";
   dropdownList.style.boxShadow = "var(--box-shadows-menu)";
   dropdownList.style.marginBottom = "8px";
   dropdownList.style.marginTop = "4px";
-  dropdownList.style.width = "100%";
-  dropdownList.style.zIndex = "1";
+  dropdownList.style.zIndex = "100000";
   dropdownList.style.boxSizing = "border-box";
   dropdownList.style.background =
     "var(--colors-ui-menu-content-background)";
@@ -133,6 +133,15 @@ function attachCustomDropdown(
   dropdownList.style.padding = "0";
   dropdownList.style.margin = "0";
   dropdownList.style.display = "none";
+
+  // Position dropdownList just below dropdownContainer using
+  // viewport coordinates. Called on each open / scroll / resize.
+  const positionDropdown = () => {
+    const rect = dropdownContainer.getBoundingClientRect();
+    dropdownList.style.top = `${rect.bottom + 3}px`;
+    dropdownList.style.left = `${rect.left}px`;
+    dropdownList.style.width = `${rect.width}px`;
+  };
 
   const renderOptions = () => {
     dropdownList.replaceChildren();
@@ -243,6 +252,7 @@ function attachCustomDropdown(
   };
 
   inputField.addEventListener("focus", () => {
+    positionDropdown();
     dropdownList.style.display = "block";
     //updateActiveOption(-1);
   });
@@ -262,6 +272,7 @@ function attachCustomDropdown(
       removeError(); // Remove error during input
     }
 
+    positionDropdown();
     dropdownList.style.display = "block";
   });
 
@@ -290,12 +301,14 @@ function attachCustomDropdown(
   inputField.addEventListener("keydown", (event) => {
     if (event.key === "ArrowDown") {
       event.preventDefault();
+      positionDropdown();
       dropdownList.style.display = "block";
       if (activeIndex < options.length - 1) {
         updateActiveOption(activeIndex + 1);
       }
     } else if (event.key === "ArrowUp") {
       event.preventDefault();
+      positionDropdown();
       dropdownList.style.display = "block";
       if (activeIndex > 0) {
         updateActiveOption(activeIndex - 1);
@@ -320,18 +333,39 @@ function attachCustomDropdown(
   });
 
   document.addEventListener("click", (event) => {
-    if (!dropdownContainer.contains(event.target as Node)) {
+    const target = event.target as Node;
+    if (
+      !dropdownContainer.contains(target) &&
+      !dropdownList.contains(target)
+    ) {
       dropdownList.style.display = "none";
     }
   });
 
   dropdownContainer.appendChild(inputField);
   dropdownContainer.appendChild(clearButtonContainer);
-  dropdownContainer.appendChild(dropdownList);
+  // Append the floating list to body so no ancestor's overflow
+  // can clip it. Coordinates come from positionDropdown().
+  document.body.appendChild(dropdownList);
   targetElement.appendChild(dropdownContainer);
+
+  // Reposition while open if anything in the page scrolls/resizes
+  // (capture catches scrolls in nested overflow containers).
+  const onReposition = () => {
+    if (dropdownList.style.display === "block") {
+      positionDropdown();
+    }
+  };
+  window.addEventListener("scroll", onReposition, true);
+  window.addEventListener("resize", onReposition);
 
   return {
     destroy: () => {
+      window.removeEventListener("scroll", onReposition, true);
+      window.removeEventListener("resize", onReposition);
+      if (dropdownList.parentElement) {
+        dropdownList.parentElement.removeChild(dropdownList);
+      }
       targetElement.removeChild(dropdownContainer);
     },
     setValue: (value: string | null) => {
