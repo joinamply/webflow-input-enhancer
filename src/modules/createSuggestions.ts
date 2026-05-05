@@ -5,6 +5,13 @@ export const createSuggestions = (
   onChange: (value: string) => void,
   config: {
     keyPairSeparator: string;
+    /**
+     * When true, treat the whole input value as the search query
+     * (case-insensitive substring match). On selection, replace
+     * the entire input value with the chosen key. Use this for
+     * single-value inputs (e.g. CSS custom property values).
+     */
+    matchAnywhere?: boolean;
   }
 ) => {
   let _keys = keys;
@@ -81,6 +88,25 @@ export const createSuggestions = (
 
   // Handle input event on the textarea
   el.addEventListener("input", (_) => {
+    if (config.matchAnywhere) {
+      const query = el.value.trim();
+      if (query.length === 0) {
+        autocomplete.style.display = "none";
+        return;
+      }
+      const lower = query.toLowerCase();
+      const matching = _keys.filter((k) =>
+        k.toLowerCase().includes(lower)
+      );
+      if (matching.length > 0) {
+        activeIndex = -1;
+        renderSuggestions(matching);
+        updateDropdownPosition();
+      } else {
+        autocomplete.style.display = "none";
+      }
+      return;
+    }
     const cursorPos = el.selectionStart ?? 0;
     const textUpToCursor = el.value.substring(0, cursorPos);
 
@@ -190,6 +216,17 @@ export const createSuggestions = (
       if (activeIndex >= 0) {
         const selectedSuggestion =
           suggestions[activeIndex].textContent ?? "";
+        if (config.matchAnywhere) {
+          el.value = selectedSuggestion;
+          el.focus();
+          el.setSelectionRange(
+            selectedSuggestion.length,
+            selectedSuggestion.length
+          );
+          onChange(el.value);
+          autocomplete.style.display = "none";
+          return;
+        }
         const cursorPos = el.selectionStart ?? 0;
         const textUpToCursor = el.value.substring(
           0,
@@ -260,6 +297,17 @@ export const createSuggestions = (
   autocomplete.addEventListener("click", (event: any) => {
     if (event.target!.classList!.contains("suggestion")) {
       const selectedSuggestion = event.target!.textContent;
+      if (config.matchAnywhere) {
+        el.value = selectedSuggestion;
+        el.focus();
+        el.setSelectionRange(
+          selectedSuggestion.length,
+          selectedSuggestion.length
+        );
+        onChange(el.value);
+        autocomplete.style.display = "none";
+        return;
+      }
       const cursorPos = el.selectionStart ?? 0;
       const textUpToCursor = el.value.substring(
         0,

@@ -24,6 +24,7 @@ import { addIEFlagToCanvas } from "./addIEFlagToCanvas";
 import { locateAttrContainer } from "./enhanceAttr";
 import { groupCmsFields } from "../modules/groupCmsFields";
 import { groupCmsCollections } from "../modules/groupCmsCollections";
+import { enhanceStyleCustomProps } from "../modules/enhanceStyleCustomProps";
 
 (window as any).isDOMChanging = false;
 
@@ -730,6 +731,8 @@ const monitorAlternativeRoot = () => {
           locateAttrContainer();
           //group CMS fields by [Group=NAME] help-text marker
           groupCmsFields();
+          //attach variable suggestions to Style panel custom props
+          enhanceStyleCustomProps();
         }
       }
     );
@@ -763,6 +766,8 @@ export const initApp = () => {
   groupCmsFields();
   //group CMS collections by [Group=NAME] in collection name
   groupCmsCollections();
+  //attach variable suggestions to Style panel custom props
+  enhanceStyleCustomProps();
   setTimeout(() => {
     onDesignerModeChangeFromTo(
       "inside_config_component",
@@ -778,9 +783,10 @@ export const initApp = () => {
       null
     );
   }, 4000);
-  //fallback polling for CMS collection grouping
-  //(catches React re-renders the global observer might miss)
+  //fallback polling for CMS collection grouping + Style custom
+  //props (catches React re-renders the global observer might miss)
   setInterval(() => {
     groupCmsCollections();
+    enhanceStyleCustomProps();
   }, 1000);
 };

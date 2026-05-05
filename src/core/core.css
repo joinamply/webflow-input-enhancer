@@ -6,31 +6,6 @@
   --ei-active-bg: rgba(255, 255, 255, 0.07);
 }
 
-[ei-config-item] {
-  width: 32px !important;
-  height: 32px !important;
-  background: var(--ei-primary);
-  border-radius: 4px;
-  padding: 4px;
-  color: var(--ei-white);
-}
-
-[ei-config-search-item] {
-  --item-icon-size: 24px;
-  width: 24px !important;
-  height: 24px !important;
-  background: var(--ei-primary);
-  border-radius: 4px;
-  padding: 4px;
-  color: var(--ei-white) !important;
-}
-
-[ei-config-header-icon] {
-  background: var(--ei-primary);
-  border-radius: 3px;
-  padding: 2px;
-  color: var(--ei-white);
-}
 
 /* 
   tippy styles
@@ -72,6 +47,9 @@
   background-color: var(--ei-hover-bg);
 }
 
+/* Disabled with the "Expand Attributes List" toggle — re-enable
+   together with injectExtendedInput when the layout fix lands. */
+/*
 [ei-attr-list-enabled="true"]
   [data-automation-id="PropertyListBase"]
   span {
@@ -93,6 +71,7 @@
   padding-top: 1em !important;
   padding-bottom: 1em !important;
 }
+*/
 
 [data-ei-desc="true"] {
   opacity: 0.7;
