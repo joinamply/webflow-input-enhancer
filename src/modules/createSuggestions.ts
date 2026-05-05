@@ -89,11 +89,18 @@ export const createSuggestions = (
   // Handle input event on the textarea
   el.addEventListener("input", (_) => {
     if (config.matchAnywhere) {
-      const query = el.value.trim();
-      if (query.length === 0) {
+      const cursorPos = el.selectionStart ?? el.value.length;
+      const textUpToCursor = el.value.substring(0, cursorPos);
+      // Capture a partial variable token at the cursor:
+      //   `var`, `var(`, `var(--name`, `--name`
+      const tokenMatch = textUpToCursor.match(
+        /(var\(?(?:--[\w-]*)?|--[\w-]*)$/i
+      );
+      if (!tokenMatch) {
         autocomplete.style.display = "none";
         return;
       }
+      const query = tokenMatch[0];
       const lower = query.toLowerCase();
       const matching = _keys.filter((k) =>
         k.toLowerCase().includes(lower)
@@ -217,12 +224,29 @@ export const createSuggestions = (
         const selectedSuggestion =
           suggestions[activeIndex].textContent ?? "";
         if (config.matchAnywhere) {
-          el.value = selectedSuggestion;
-          el.focus();
-          el.setSelectionRange(
-            selectedSuggestion.length,
-            selectedSuggestion.length
+          const cursorPos =
+            el.selectionStart ?? el.value.length;
+          const textUpToCursor = el.value.substring(
+            0,
+            cursorPos
           );
+          const tokenMatch = textUpToCursor.match(
+            /(var\(?(?:--[\w-]*)?|--[\w-]*)$/i
+          );
+          const queryLen = tokenMatch
+            ? tokenMatch[0].length
+            : 0;
+          const beforeQuery = textUpToCursor.substring(
+            0,
+            textUpToCursor.length - queryLen
+          );
+          const afterCursor =
+            el.value.substring(cursorPos);
+          el.value = `${beforeQuery}${selectedSuggestion}${afterCursor}`;
+          el.focus();
+          const newCursor =
+            beforeQuery.length + selectedSuggestion.length;
+          el.setSelectionRange(newCursor, newCursor);
           onChange(el.value);
           autocomplete.style.display = "none";
           return;
@@ -298,12 +322,28 @@ export const createSuggestions = (
     if (event.target!.classList!.contains("suggestion")) {
       const selectedSuggestion = event.target!.textContent;
       if (config.matchAnywhere) {
-        el.value = selectedSuggestion;
-        el.focus();
-        el.setSelectionRange(
-          selectedSuggestion.length,
-          selectedSuggestion.length
+        const cursorPos =
+          el.selectionStart ?? el.value.length;
+        const textUpToCursor = el.value.substring(
+          0,
+          cursorPos
         );
+        const tokenMatch = textUpToCursor.match(
+          /(var\(?(?:--[\w-]*)?|--[\w-]*)$/i
+        );
+        const queryLen = tokenMatch
+          ? tokenMatch[0].length
+          : 0;
+        const beforeQuery = textUpToCursor.substring(
+          0,
+          textUpToCursor.length - queryLen
+        );
+        const afterCursor = el.value.substring(cursorPos);
+        el.value = `${beforeQuery}${selectedSuggestion}${afterCursor}`;
+        el.focus();
+        const newCursor =
+          beforeQuery.length + selectedSuggestion.length;
+        el.setSelectionRange(newCursor, newCursor);
         onChange(el.value);
         autocomplete.style.display = "none";
         return;
