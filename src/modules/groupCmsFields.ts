@@ -245,7 +245,63 @@ const buildGroupWrapper = (
   return { wrapper, body };
 };
 
+const undoFieldGrouping = () => {
+  document
+    .querySelectorAll<HTMLElement>(`[${GROUP_WRAPPER_ATTR}]`)
+    .forEach((wrapper) => {
+      const wrapperParent = wrapper.parentElement;
+      if (!wrapperParent) return;
+      const body = wrapper.querySelector<HTMLElement>(
+        `[${GROUP_BODY_ATTR}]`
+      );
+      if (body) {
+        Array.from(body.children).forEach((child) => {
+          if (child instanceof HTMLElement) {
+            wrapperParent.insertBefore(child, wrapper);
+          }
+        });
+      }
+      wrapper.remove();
+    });
+  document
+    .querySelectorAll<HTMLElement>(
+      `[${GROUP_PROCESSED_ATTR}]`
+    )
+    .forEach((hint) => {
+      hint.removeAttribute(GROUP_PROCESSED_ATTR);
+      (hint as HTMLElement).style.removeProperty("display");
+    });
+};
+
+// Field grouping via [Group=NAME] help-text markers is disabled
+// because Webflow shipped native CMS field groups. This function
+// only tears down any leftover wrappers each tick — no new
+// grouping happens.
 export const groupCmsFields = () => {
+  undoFieldGrouping();
+};
+
+// Keep the disabled helpers referenced so TypeScript doesn't
+// flag them while grouping is turned off. Re-enable by restoring
+// the original implementation from git history if needed.
+void GROUP_REGEX;
+void GROUP_LEADING_REGEX;
+void HINT_SELECTOR;
+void GROUP_HEADING_ATTR;
+void GROUP_CHEVRON_ATTR;
+void GROUP_COUNT_ATTR;
+void hydrateCollapsedGroups;
+void persistCollapsedGroups;
+void applyCollapsedState;
+void isFieldFilled;
+void updateGroupCount;
+void findFieldWrapper;
+void cleanGroupText;
+void buildGroupWrapper;
+void makeElMutationChangeSafe;
+void debug;
+
+const _disabledGroupCmsFields = () => {
   hydrateCollapsedGroups();
 
   // Refresh counts on any existing group wrappers so the
@@ -344,3 +400,4 @@ export const groupCmsFields = () => {
     );
   });
 };
+void _disabledGroupCmsFields;
