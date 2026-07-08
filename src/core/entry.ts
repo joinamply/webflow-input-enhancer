@@ -25,6 +25,7 @@ import { locateAttrContainer } from "./enhanceAttr";
 import { groupCmsFields } from "../modules/groupCmsFields";
 import { groupCmsCollections } from "../modules/groupCmsCollections";
 import { enhanceStyleCustomProps } from "../modules/enhanceStyleCustomProps";
+import { installSvgPasteTransformer } from "../modules/svgPasteTransformer";
 
 (window as any).isDOMChanging = false;
 
@@ -768,6 +769,8 @@ export const initApp = () => {
   groupCmsCollections();
   //attach variable suggestions to Style panel custom props
   enhanceStyleCustomProps();
+  //global paste hook that rewrites pasted <svg> code
+  installSvgPasteTransformer();
   setTimeout(() => {
     onDesignerModeChangeFromTo(
       "inside_config_component",
