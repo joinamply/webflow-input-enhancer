@@ -5,6 +5,7 @@ import "./modules/getAllWebflowClassName";
 import "./modules/getEIConfig";
 import "./modules/gellAllVariables";
 import { initExtendedInputStore } from "./utils/extendedInputStore";
+import { initSvgTransformStore } from "./utils/svgTransformStore";
 //enable debug mode
 setDebug(import.meta.env.MODE === "development");
 //fetch the dom data
@@ -14,3 +15,6 @@ initApp();
 
 //initialize the extended input store
 initExtendedInputStore();
+
+//initialize the svg transform store
+initSvgTransformStore();

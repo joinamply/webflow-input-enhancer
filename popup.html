@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Webflow Input Enhancer</title>
+    <style>
+      :root {
+        --ei-primary: #6565f4;
+        --ei-bg: #1e1e1e;
+        --ei-surface: #262626;
+        --ei-border: rgba(255, 255, 255, 0.09);
+        --ei-text: #ededed;
+        --ei-text-dim: #a0a0a0;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        width: 320px;
+        margin: 0;
+        padding: 0;
+        background: var(--ei-bg);
+        color: var(--ei-text);
+        font-family: Inter, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--ei-border);
+      }
+
+      header img {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+      }
+
+      header h1 {
+        margin: 0;
+        font-size: 12.5px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+
+      main {
+        padding: 14px;
+      }
+
+      .setting {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+
+      .setting-label {
+        font-size: 12.5px;
+        font-weight: 500;
+        margin: 0 0 2px;
+      }
+
+      .setting-desc {
+        margin: 0;
+        font-size: 11.5px;
+        color: var(--ei-text-dim);
+      }
+
+      .setting-desc code {
+        font-family: "Roboto Mono", ui-monospace, SFMono-Regular,
+          Menlo, monospace;
+        font-size: 11px;
+        color: var(--ei-text);
+      }
+
+      /* toggle */
+      .switch {
+        position: relative;
+        flex: 0 0 auto;
+        width: 32px;
+        height: 18px;
+        margin-top: 1px;
+      }
+
+      .switch input {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        cursor: pointer;
+        z-index: 1;
+      }
+
+      .switch .track {
+        position: absolute;
+        inset: 0;
+        border-radius: 9px;
+        background: #3d3d3d;
+        transition: background 130ms ease;
+      }
+
+      .switch .thumb {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #fff;
+        transition: transform 130ms ease;
+      }
+
+      .switch input:checked ~ .track {
+        background: var(--ei-primary);
+      }
+
+      .switch input:checked ~ .thumb {
+        transform: translateX(14px);
+      }
+
+      .switch input:focus-visible ~ .track {
+        outline: 2px solid var(--ei-primary);
+        outline-offset: 2px;
+      }
+
+      .hint {
+        display: flex;
+        gap: 8px;
+        margin-top: 14px;
+        padding: 10px;
+        border: 1px solid var(--ei-border);
+        border-radius: 6px;
+        background: var(--ei-surface);
+        font-size: 11.5px;
+        color: var(--ei-text-dim);
+      }
+
+      .hint p {
+        margin: 0;
+      }
+
+      kbd {
+        display: inline-block;
+        padding: 1px 5px;
+        border: 1px solid var(--ei-border);
+        border-bottom-width: 2px;
+        border-radius: 4px;
+        background: #333;
+        color: var(--ei-text);
+        font-family: inherit;
+        font-size: 10.5px;
+        font-weight: 500;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <img src="./logo.png" alt="" />
+      <h1>Webflow Input Enhancer</h1>
+    </header>
+
+    <main>
+      <div class="setting">
+        <div>
+          <p class="setting-label">SVG theme colors</p>
+          <p class="setting-desc">
+            Rewrite hard-coded fills to
+            <code>currentColor</code> when pasting an SVG, so
+            icons inherit the color of their parent.
+          </p>
+        </div>
+        <label class="switch">
+          <input
+            type="checkbox"
+            id="theme-colors"
+            checked
+            aria-label="SVG theme colors"
+          />
+          <span class="track"></span>
+          <span class="thumb"></span>
+        </label>
+      </div>
+
+      <div class="hint">
+        <span aria-hidden="true">💡</span>
+        <p>
+          Paste with
+          <span id="bypass-chord"
+            ><kbd>⌘</kbd> + <kbd>Shift</kbd> + <kbd>Option</kbd>
+            + <kbd>V</kbd></span
+          >
+          to keep the original fill colors for that paste — even
+          while this setting is on. Fluid sizing and
+          accessibility attributes are always applied.
+        </p>
+      </div>
+    </main>
+
+    <script type="module" src="./src/popup/popup.ts"></script>
+  </body>
+</html>
