@@ -216,7 +216,7 @@ export type inputTypes = {
   parentElement: Element;
   fieldLabelParent: Element;
   labelElement: ChildNode;
-  iconElement: SVGSVGElement;
+  iconElement: SVGSVGElement | null;
   value: string;
   defaultDisplay: string;
   getFieldLabelParent: () => Element | null;
@@ -390,13 +390,14 @@ const getAllPossibleInputs = (
       };
       const iconElement = getIconElement();
 
-      //if the icon element is not found, return null
-      if (!iconElement) {
-        debug("🙀 Icon element not found", input);
-        return null;
+      //the icon is decorative (type icon + tooltip). Webflow can
+      //move or drop it between releases, so treat it as optional
+      //rather than discarding the whole field when it's missing.
+      if (iconElement) {
+        makeElMutationChangeSafe(iconElement);
+      } else {
+        debug("🙀 Icon element not found (continuing)", input);
       }
-      //make the icon element mutation change safe
-      makeElMutationChangeSafe(iconElement!);
 
       return {
         element: input as HTMLInputElement,
@@ -554,13 +555,13 @@ const getAllPossibleEmptyFields = (
         return icon;
       };
       const iconElement = getIconElement();
-      //if the icon element is not found, return null
-      if (!iconElement) {
-        debug("🙀 [IE] Icon element not found", field);
-        return null;
+      //icon is optional — see note in getAllPossibleInputs. Don't
+      //discard the field just because Webflow moved the svg.
+      if (iconElement) {
+        makeElMutationChangeSafe(iconElement);
+      } else {
+        debug("🙀 [IE] Icon element not found (continuing)", field);
       }
-      //make the icon element mutation change safe
-      makeElMutationChangeSafe(iconElement!);
       return {
         element: field,
         automationId: id,
