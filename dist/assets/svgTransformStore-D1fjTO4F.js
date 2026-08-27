@@ -1,0 +1,1 @@
+const s="svgThemeColorsEnabled";let r=!0;const o=async e=>{r=e,await chrome.storage.sync.set({[s]:e})},a=()=>r,n=async()=>(await chrome.storage.sync.get([s]))[s]!==!1,l=()=>{n().then(e=>{r=e}),chrome.storage.onChanged.addListener((e,t)=>{t==="sync"&&s in e&&(r=e[s].newValue!==!1)})};export{a as g,l as i,n as r,o as s};

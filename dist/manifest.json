@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Webflow Input Enhancer",
-  "version": "0.4.5",
+  "version": "0.4.7",
   "icons": {
     "16": "logo.png",
     "32": "logo.png",
@@ -9,6 +9,10 @@
     "128": "logo.png"
   },
   "description": "Transform the Way You Work with Component in Webflow!",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Webflow Input Enhancer"
+  },
   "permissions": [
     "storage"
   ],
@@ -19,7 +23,7 @@
   "content_scripts": [
     {
       "js": [
-        "assets/content.ts-loader-Cj37J-y4.js"
+        "assets/content.ts-loader-DL9ePThb.js"
       ],
       "matches": [
         "*://*.design.webflow.com/*",
@@ -38,7 +42,8 @@
         "*://*.preview.webflow.com/*"
       ],
       "resources": [
-        "assets/content.ts-D1O3wTXM.js"
+        "assets/svgTransformStore-D1fjTO4F.js",
+        "assets/content.ts-Tektn7xI.js"
       ],
       "use_dynamic_url": false
     }
